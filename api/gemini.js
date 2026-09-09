@@ -19,15 +19,15 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'GEMINI_API_KEY not set' });
     }
 
-    // เรียก Gemini API
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(req.body)
-      }
-    );
+    //  1.5Flash lite!!!
+    const MODEL = 'gemini-1.5-flash-lite';
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body)
+    });
 
     const data = await response.json();
     res.status(200).json(data);
