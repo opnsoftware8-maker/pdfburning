@@ -15,21 +15,23 @@
     .font-anuphan { font-family: 'Anuphan', sans-serif; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-    .color-swatch {
-      width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
-      border: 2px solid transparent; transition: all 0.15s; flex-shrink: 0;
-    }
+    .color-swatch { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; flex-shrink: 0; }
     .color-swatch:hover { transform: scale(1.08); border-color: #f97316; }
     .color-swatch.active { border-color: #f97316; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #f97316; }
-
-    /* key-value row */
-    .kv-row input {
-      min-width: 0;
-    }
+    #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+    .toast { pointer-events: auto; min-width: 260px; max-width: 380px; padding: 14px 18px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); font-family: 'Anuphan', sans-serif; font-size: 14px; font-weight: 500; display: flex; align-items: flex-start; gap: 10px; animation: toastIn 0.3s ease; color: #fff; }
+    .toast.success { background: linear-gradient(135deg, #10b981, #059669); }
+    .toast.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .toast.info { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .toast.warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .toast svg { flex-shrink: 0; margin-top: 1px; }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes toastOut { to { opacity: 0; transform: translateX(30px); } }
   </style>
 </head>
 <body class="bg-[#f0ebd5] min-h-screen flex flex-col justify-between text-gray-800">
+
+  <div id="toast-container"></div>
 
   <div id="app" class="w-full">
     <header class="w-full bg-gradient-to-r from-orange-700 via-orange-500 to-orange-300 text-white shadow-lg">
@@ -110,7 +112,7 @@
                   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 </div>
                 <span class="font-anuphan text-sm font-semibold text-gray-700 mb-1">คลิกเพื่อเลือกไฟล์ข้อมูล</span>
-                <span class="font-anuphan text-xs text-gray-400">Excel (.xlsx), CSV, PDF หรือไฟล์ตาราง</span>
+                <span class="font-anuphan text-xs text-gray-400">Excel (.xlsx), CSV</span>
               </div>
               <div id="file-preview-container" class="hidden w-full flex flex-col items-center py-2">
                 <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-2">
@@ -122,7 +124,7 @@
               </div>
             </div>
           </div>
-          <input type="file" id="data-upload" accept=".xlsx,.xls,.csv,.pdf,.txt,.json" class="hidden">
+          <input type="file" id="data-upload" accept=".xlsx,.xls,.csv" class="hidden">
         </div>
       </div>
 
@@ -166,10 +168,6 @@
             <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
             ลบที่เลือก
           </button>
-          <button id="dump-vars-btn" class="px-3 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-md text-xs font-anuphan font-medium flex items-center gap-1.5 transition border border-blue-200" title="พิมพ์ variables ลง Console">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-            ดู Object ใน Console
-          </button>
         </div>
         <div class="text-xs text-gray-500 font-anuphan hidden sm:block">
           *ดับเบิลคลิกที่ข้อความบนรูปเพื่อเปลี่ยนชื่อ
@@ -187,9 +185,9 @@
           <div class="border-b border-gray-100 pb-3 mb-3">
             <h3 class="font-trirong font-bold text-lg text-gray-800 flex items-center gap-2">
               <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-              ตัวแปร (Object)
+              ตัวแปร
             </h3>
-            <p class="text-xs text-gray-500 font-anuphan mt-1">แต่ละตัวแปรเก็บเป็น object มีข้อมูล key-value</p>
+            <p class="text-xs text-gray-500 font-anuphan mt-1">แต่ละตัวแปรเก็บเป็น object ใน array</p>
           </div>
           
           <div id="variable-mapping-list" class="flex flex-col gap-3 font-anuphan overflow-y-auto no-scrollbar flex-grow max-h-[420px]">
@@ -265,7 +263,7 @@
           </div>
 
           <div class="mt-4 pt-4 border-t border-gray-100">
-            <button class="w-full py-3 bg-gray-800 hover:bg-gray-900 text-white font-anuphan font-medium text-sm rounded-lg transition shadow-sm flex justify-center items-center gap-2">
+            <button id="generate-pdf-btn" class="w-full py-3 bg-gray-800 hover:bg-gray-900 text-white font-anuphan font-medium text-sm rounded-lg transition shadow-sm flex justify-center items-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
               สร้างเอกสาร (PDF)
             </button>
@@ -275,7 +273,7 @@
       </div>
     </div>
   </div>
-  
+
   <footer class="mt-20 border-t border-orange-200/90 bg-[#F9F6F0]">
     <div class="max-w-4xl mx-auto px-6 py-8">
       <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -294,14 +292,31 @@
   </footer>
 
   <script>
-    // ==========================================
-    // 1. DOM References
-    // ==========================================
+    const toastContainer = document.getElementById('toast-container');
+
+    function showToast(message, type, duration) {
+      type = type || 'info';
+      duration = duration || 3000;
+      const icons = {
+        success: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>',
+        error: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>',
+        warning: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01M5 19h14a2 2 0 001.84-2.75L13.74 4a2 2 0 00-3.48 0l-7.1 12.25A2 2 0 005 19z"/></svg>',
+        info: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+      };
+      const toast = document.createElement('div');
+      toast.className = 'toast ' + type;
+      toast.innerHTML = (icons[type] || icons.info) + '<span>' + message + '</span>';
+      toastContainer.appendChild(toast);
+      setTimeout(function () {
+        toast.style.animation = 'toastOut 0.3s ease forwards';
+        setTimeout(function () { toast.remove(); }, 300);
+      }, duration);
+    }
+
     const startBtn = document.getElementById('start-btn');
     const stepStart = document.getElementById('step-start');
     const stepUpload = document.getElementById('step-upload');
     const stepEditor = document.getElementById('step-editor');
-    
     const imageUpload = document.getElementById('image-upload');
     const imageDropzone = document.getElementById('image-dropzone');
     const imagePlaceholder = document.getElementById('image-placeholder');
@@ -309,7 +324,6 @@
     const imagePreview = document.getElementById('image-preview');
     const imageFilename = document.getElementById('image-filename');
     const imgStatusBadge = document.getElementById('img-status-badge');
-
     const dataUpload = document.getElementById('data-upload');
     const fileDropzone = document.getElementById('file-dropzone');
     const filePlaceholder = document.getElementById('file-placeholder');
@@ -317,7 +331,6 @@
     const fileNameText = document.getElementById('file-name');
     const fileSizeText = document.getElementById('file-size');
     const fileStatusBadge = document.getElementById('file-status-badge');
-
     const cancelBtn = document.getElementById('cancel-btn');
     const confirmBtn = document.getElementById('confirm-btn');
     const resetBtn = document.getElementById('reset-btn');
@@ -325,12 +338,9 @@
     const uploadAlertText = document.getElementById('upload-alert-text');
     const attachedFileTag = document.getElementById('attached-file-tag');
     const attachedFileText = document.getElementById('attached-file-text');
-
     const addTextBtn = document.getElementById('add-text-btn');
     const deleteTextBtn = document.getElementById('delete-text-btn');
-    const dumpVarsBtn = document.getElementById('dump-vars-btn');
     const mappingList = document.getElementById('variable-mapping-list');
-
     const textPropertiesPanel = document.getElementById('text-properties-panel');
     const textColorPicker = document.getElementById('text-color-picker');
     const textFontSelect = document.getElementById('text-font-select');
@@ -340,58 +350,53 @@
     const applyToAllBtn = document.getElementById('apply-to-all-btn');
     const selectedTextName = document.getElementById('selected-text-name');
     const colorSwatches = document.querySelectorAll('.color-swatch');
+    const generatePdfBtn = document.getElementById('generate-pdf-btn');
 
-    // ==========================================
-    // 2. State
-    // ==========================================
     let canvas = null;
-    let selectedImageFile = null;
     let selectedImageDataUrl = null;
     let selectedDataFile = null;
     let isUpdatingFromCanvas = false;
 
-    // ★★★ หัวใจหลัก — array ของ object ตัวแปร ★★★
-    // โครงสร้างแต่ละ object:
-    // {
+    // ==========================================
+    // ARRAY ของ OBJECT ตัวแปร — ใช้งานได้ทันที
+    // ตัวอย่าง:
+    // variables[0] = {
     //   id: 1,
-    //   text: "ชื่อนักเรียน",         ← ชื่อที่แสดงบน canvas
-    //   column: "รายชื่อ",           ← ชื่อคอลัมน์ใน Excel/CSV ที่จะดึงข้อมูล
-    //   data: { "ชื่อนักเรียน": "รายชื่อ", "ชั้น": "ลำดับชั้น" },  ← key-value จริง
-    //   fontFamily, fontSize, fill, left, top, angle
+    //   text: "ตัวแปร1",
+    //   column: "รายชื่อ",
+    //   data: { "ชื่อนักเรียน": "รายชื่อ", "ชั้น": "ลำดับชั้น" },
+    //   fontFamily: "Anuphan",
+    //   fontSize: 24,
+    //   fill: "#FFFFFF",
+    //   left: 300, top: 200, angle: 0
     // }
+    // ==========================================
     let variables = [];
     let varIdCounter = 1;
 
-    // ==========================================
-    // 3. Helpers
-    // ==========================================
-    function getVariableById(id) {
-      return variables.find(v => v.id === id);
-    }
     function getVariableByFabricObj(obj) {
       if (!obj || obj.varId == null) return null;
-      return getVariableById(obj.varId);
-    }
-    function escapeHtml(s) {
-      return String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+      return variables.find(function (v) { return v.id === obj.varId; });
     }
 
-    // ==========================================
-    // 4. Step Navigation & Upload
-    // ==========================================
-    startBtn.addEventListener('click', () => {
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (ch) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+      });
+    }
+
+    startBtn.addEventListener('click', function () {
       stepStart.classList.add('hidden');
       stepUpload.classList.remove('hidden');
       uploadAlert.classList.add('hidden');
     });
 
-    imageDropzone.addEventListener('click', () => imageUpload.click());
-    fileDropzone.addEventListener('click', () => dataUpload.click());
+    imageDropzone.addEventListener('click', function () { imageUpload.click(); });
+    fileDropzone.addEventListener('click', function () { dataUpload.click(); });
 
-    imageUpload.addEventListener('change', (e) => {
+    imageUpload.addEventListener('change', function (e) {
       const file = e.target.files[0];
       if (!file) return;
-      selectedImageFile = file;
       uploadAlert.classList.add('hidden');
       const reader = new FileReader();
       reader.onload = function (event) {
@@ -405,7 +410,7 @@
       reader.readAsDataURL(file);
     });
 
-    dataUpload.addEventListener('change', (e) => {
+    dataUpload.addEventListener('change', function (e) {
       const file = e.target.files[0];
       if (!file) return;
       selectedDataFile = file;
@@ -417,16 +422,18 @@
       filePreviewContainer.classList.remove('hidden');
       fileStatusBadge.classList.remove('hidden');
     });
-    cancelBtn.addEventListener('click', () => {
+
+    cancelBtn.addEventListener('click', function () {
       resetUploadData();
       stepUpload.classList.add('hidden');
       stepStart.classList.remove('hidden');
     });
 
-    confirmBtn.addEventListener('click', () => {
+    confirmBtn.addEventListener('click', function () {
       if (!selectedImageDataUrl) {
         uploadAlert.classList.remove('hidden');
         uploadAlertText.textContent = 'กรุณาเลือกไฟล์ภาพแม่แบบก่อนกดตกลง';
+        showToast('กรุณาเลือกไฟล์ภาพแม่แบบก่อน', 'warning');
         return;
       }
       stepUpload.classList.add('hidden');
@@ -440,7 +447,7 @@
       renderFabricCanvas(selectedImageDataUrl);
     });
 
-    resetBtn.addEventListener('click', () => {
+    resetBtn.addEventListener('click', function () {
       stepEditor.classList.add('hidden');
       stepUpload.classList.remove('hidden');
       if (canvas) { canvas.clear(); canvas = null; }
@@ -450,7 +457,6 @@
     });
 
     function resetUploadData() {
-      selectedImageFile = null;
       selectedImageDataUrl = null;
       selectedDataFile = null;
       imageUpload.value = '';
@@ -464,9 +470,6 @@
       uploadAlert.classList.add('hidden');
     }
 
-    // ==========================================
-    // 5. Fabric Canvas
-    // ==========================================
     function renderFabricCanvas(imageUrl) {
       const imgObj = new Image();
       imgObj.src = imageUrl;
@@ -487,13 +490,12 @@
           scaleX: scaleRatio, scaleY: scaleRatio,
           selectable: false, evented: false
         });
-
+        
         canvas.clear();
         canvas.add(fabricImg);
         canvas.renderAll();
 
-        // สร้าง text object ทั้งหมดจาก variables ที่มีอยู่ (ถ้าโหลดซ้ำ)
-        variables.forEach(v => {
+        variables.forEach(function (v) {
           const textObj = new fabric.IText(v.text || 'ตัวแปร', {
             left: v.left, top: v.top, angle: v.angle || 0,
             fontFamily: v.fontFamily, fontSize: v.fontSize, fill: v.fill,
@@ -511,44 +513,34 @@
       };
     }
 
-    // ==========================================
-    // 6. Canvas Events
-    // ==========================================
     function setupCanvasEvents() {
-      canvas.on('text:changed', (e) => {
+      canvas.on('text:changed', function (e) {
         const obj = e.target;
         const v = getVariableByFabricObj(obj);
-        if (v) {
-          v.text = obj.text;
-          // อัปเดต data ที่ key ตรงกับชื่อเดิม? ไม่ทำ ปล่อยให้เป็นข้อมูลคนละส่วน
-        }
+        if (v) v.text = obj.text;
         updateVariableMappingUI();
         updateTextPropertiesPanel(obj);
       });
 
-      canvas.on('object:modified', (e) => {
+      canvas.on('object:modified', function (e) {
         const obj = e.target;
         const v = getVariableByFabricObj(obj);
         if (v && (obj.type === 'i-text' || obj.type === 'text')) {
-          v.left = obj.left;
-          v.top = obj.top;
-          v.angle = obj.angle || 0;
-          v.fontSize = obj.fontSize;
-          v.fontFamily = obj.fontFamily;
-          v.fill = obj.fill;
+          v.left = obj.left; v.top = obj.top; v.angle = obj.angle || 0;
+          v.fontSize = obj.fontSize; v.fontFamily = obj.fontFamily; v.fill = obj.fill;
         }
         if (canvas.getActiveObject() === obj) updateTextPropertiesPanel(obj);
       });
 
-      canvas.on('object:removed', (e) => {
+      canvas.on('object:removed', function (e) {
         const obj = e.target;
         if (obj && obj.varId != null) {
-          variables = variables.filter(v => v.id !== obj.varId);
+          variables = variables.filter(function (v) { return v.id !== obj.varId; });
           updateVariableMappingUI();
         }
       });
 
-      const handleSel = (e) => {
+      const handleSel = function (e) {
         const obj = e.selected && e.selected[0];
         if (obj && (obj.type === 'i-text' || obj.type === 'text')) {
           updateTextPropertiesPanel(obj);
@@ -559,31 +551,25 @@
       };
       canvas.on('selection:created', handleSel);
       canvas.on('selection:updated', handleSel);
-      canvas.on('selection:cleared', () => textPropertiesPanel.classList.add('hidden'));
+      canvas.on('selection:cleared', function () { textPropertiesPanel.classList.add('hidden'); });
     }
 
-    // ==========================================
-    // 7. Text Properties Panel Logic
-    // ==========================================
     function updateTextPropertiesPanel(obj) {
       if (!obj) return;
       isUpdatingFromCanvas = true;
-
       selectedTextName.textContent = obj.text || '(ไม่มีชื่อ)';
       selectedTextName.title = obj.text || '';
 
       const color = obj.fill || '#FFFFFF';
       textColorPicker.value = color;
-      colorSwatches.forEach(sw => {
-        sw.classList.toggle('active', sw.dataset.color === color);
-      });
-      
+      colorSwatches.forEach(function (sw) { sw.classList.toggle('active', sw.dataset.color === color); });
+
       const font = obj.fontFamily || 'Anuphan';
-      if ([...textFontSelect.options].some(opt => opt.value === font)) textFontSelect.value = font;
+      if ([].slice.call(textFontSelect.options).some(function (opt) { return opt.value === font; })) textFontSelect.value = font;
       else textFontSelect.value = 'Anuphan';
 
       const size = obj.fontSize || 24;
-      if ([...textSizeSelect.options].some(opt => parseInt(opt.value) === size)) textSizeSelect.value = size;
+      if ([].slice.call(textSizeSelect.options).some(function (opt) { return parseInt(opt.value) === size; })) textSizeSelect.value = size;
       else textSizeSelect.value = '24';
 
       isUpdatingFromCanvas = false;
@@ -601,17 +587,10 @@
       active.set({ fill: color, fontFamily: font, fontSize: size });
       canvas.renderAll();
 
-      // ★ sync ลง variable object
       const v = getVariableByFabricObj(active);
-      if (v) {
-        v.fill = color;
-        v.fontFamily = font;
-        v.fontSize = size;
-      }
+      if (v) { v.fill = color; v.fontFamily = font; v.fontSize = size; }
 
-      colorSwatches.forEach(sw => {
-        sw.classList.toggle('active', sw.dataset.color === color);
-      });
+      colorSwatches.forEach(function (sw) { sw.classList.toggle('active', sw.dataset.color === color); });
       selectedTextName.textContent = active.text || '(ไม่มีชื่อ)';
     }
 
@@ -619,38 +598,40 @@
     textFontSelect.addEventListener('change', updateSelectedObjectFromPanel);
     textSizeSelect.addEventListener('change', updateSelectedObjectFromPanel);
 
-    fontSizeDown.addEventListener('click', () => {
+    fontSizeDown.addEventListener('click', function () {
       let val = parseInt(textSizeSelect.value) || 24;
       val = Math.max(8, val - 2);
       textSizeSelect.value = val;
       updateSelectedObjectFromPanel();
     });
-    fontSizeUp.addEventListener('click', () => {
+    fontSizeUp.addEventListener('click', function () {
       let val = parseInt(textSizeSelect.value) || 24;
       val = Math.min(200, val + 2);
       textSizeSelect.value = val;
       updateSelectedObjectFromPanel();
     });
 
-    colorSwatches.forEach(sw => {
-      sw.addEventListener('click', () => {
-        const color = sw.dataset.color;
-        textColorPicker.value = color;
+    colorSwatches.forEach(function (sw) {
+      sw.addEventListener('click', function () {
+        textColorPicker.value = sw.dataset.color;
         updateSelectedObjectFromPanel();
       });
     });
 
-    applyToAllBtn.addEventListener('click', () => {
+    applyToAllBtn.addEventListener('click', function () {
       if (!canvas) return;
-      const textObjects = canvas.getObjects().filter(obj => obj.type === 'i-text' || obj.type === 'text');
-      if (textObjects.length === 0) { alert('ไม่มีข้อความบน Canvas'); return; }
-      if (!confirm('ต้องการนำการตั้งค่าสี ฟอนต์ และขนาดไปใช้กับข้อความทั้งหมดใช่หรือไม่?')) return;
+      const textObjects = canvas.getObjects().filter(function (obj) { return obj.type === 'i-text' || obj.type === 'text'; });
+      if (textObjects.length === 0) {
+        showToast('ยังไม่มีข้อความบนเอกสาร', 'warning');
+        return;
+      }
+      if (!confirm('ต้องการนำการตั้งค่าสี ฟอนต์ และขนาดไปใช้กับข้อความทั้งหมดหรือไม่?')) return;
 
       const color = textColorPicker.value;
       const font = textFontSelect.value;
       const size = parseInt(textSizeSelect.value) || 24;
 
-      textObjects.forEach(obj => {
+      textObjects.forEach(function (obj) {
         obj.set({ fill: color, fontFamily: font, fontSize: size });
         const v = getVariableByFabricObj(obj);
         if (v) { v.fill = color; v.fontFamily = font; v.fontSize = size; }
@@ -659,77 +640,68 @@
 
       const active = canvas.getActiveObject();
       if (active && (active.type === 'i-text' || active.type === 'text')) updateTextPropertiesPanel(active);
+      showToast('นำการตั้งค่าไปใช้กับข้อความทั้งหมดแล้ว', 'success');
     });
 
-    // ==========================================
-    // 8. Variable Mapping UI (key-value editor)
-    // ==========================================
     function updateVariableMappingUI() {
       mappingList.innerHTML = '';
 
       if (variables.length === 0) {
-        mappingList.innerHTML = `
-          <div class="flex flex-col items-center justify-center text-center py-10 px-4 h-full border-2 border-dashed border-gray-100 rounded-lg bg-gray-50/50">
-            <svg class="w-10 h-10 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-            <p class="text-sm text-gray-500 font-medium">ยังไม่มีตัวแปรบนเอกสาร</p>
-            <p class="text-xs text-gray-400 mt-1">กดปุ่ม "เพิ่มตัวแปรข้อความ" เพื่อเริ่มต้น</p>
-          </div>
-        `;
+        mappingList.innerHTML =
+          '<div class="flex flex-col items-center justify-center text-center py-10 px-4 h-full border-2 border-dashed border-gray-100 rounded-lg bg-gray-50/50">' +
+            '<svg class="w-10 h-10 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>' +
+            '<p class="text-sm text-gray-500 font-medium">ยังไม่มีตัวแปรบนเอกสาร</p>' +
+            '<p class="text-xs text-gray-400 mt-1">กดปุ่ม "เพิ่มตัวแปรข้อความ" เพื่อเริ่มต้น</p>' +
+          '</div>';
         return;
       }
 
-      variables.forEach((v, index) => {
+      variables.forEach(function (v, index) {
         const card = document.createElement('div');
         card.className = 'bg-gray-50 border border-gray-200 p-3 rounded-lg flex flex-col gap-2 hover:border-orange-300 transition-colors shadow-sm';
 
-        // สร้าง key-value rows
-        const kvRowsHtml = Object.entries(v.data || {}).map(([k, val]) => `
-          <div class="kv-row flex items-center gap-1">
-            <input type="text" class="kv-key flex-1 text-[12px] px-2 py-1.5 border border-gray-300 rounded focus:outline-none focus:border-orange-500 font-anuphan bg-white"
-                   value="${escapeHtml(k)}" placeholder="key" data-orig-key="${escapeHtml(k)}">
-            <span class="text-gray-400 text-xs">:</span>
-            <input type="text" class="kv-val flex-1 text-[12px] px-2 py-1.5 border border-gray-300 rounded focus:outline-none focus:border-orange-500 font-anuphan bg-white"
-                   value="${escapeHtml(val)}" placeholder="value">
-            <button class="kv-del w-6 h-6 flex items-center justify-center rounded text-red-400 hover:bg-red-50 hover:text-red-600 transition flex-shrink-0" title="ลบ">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-          </div>
-        `).join('');
+        let kvRowsHtml = '';
+        const keys = Object.keys(v.data || {});
+        if (keys.length === 0) {
+          kvRowsHtml = '<p class="text-[11px] text-gray-400 italic text-center py-1">— ยังไม่มีข้อมูล —</p>';
+        } else {
+          kvRowsHtml = keys.map(function (k) {
+            return '<div class="kv-row flex items-center gap-1">' +
+              '<input type="text" class="kv-key flex-1 text-[12px] px-2 py-1.5 border border-gray-300 rounded focus:outline-none focus:border-orange-500 font-anuphan bg-white" value="' + escapeHtml(k) + '" placeholder="key" data-orig-key="' + escapeHtml(k) + '">' +
+              '<span class="text-gray-400 text-xs">:</span>' +
+              '<input type="text" class="kv-val flex-1 text-[12px] px-2 py-1.5 border border-gray-300 rounded focus:outline-none focus:border-orange-500 font-anuphan bg-white" value="' + escapeHtml(v.data[k]) + '" placeholder="value">' +
+              '<button class="kv-del w-6 h-6 flex items-center justify-center rounded text-red-400 hover:bg-red-50 hover:text-red-600 transition flex-shrink-0" title="ลบ">' +
+                '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>' +
+              '</button>' +
+            '</div>';
+          }).join('');
+        }
 
-        card.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="flex-shrink-0 w-5 h-5 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold font-anuphan">${index + 1}</span>
-            <span class="text-sm font-semibold text-gray-800 truncate flex-1" title="${escapeHtml(v.text)}">${escapeHtml(v.text)}</span>
-            <span class="text-[10px] font-mono text-gray-400 bg-white px-1.5 py-0.5 rounded border border-gray-200">id:${v.id}</span>
-          </div>
+        card.innerHTML =
+          '<div class="flex items-center gap-2">' +
+            '<span class="flex-shrink-0 w-5 h-5 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold font-anuphan">' + (index + 1) + '</span>' +
+            '<span class="text-sm font-semibold text-gray-800 truncate flex-1" title="' + escapeHtml(v.text) + '">' + escapeHtml(v.text) + '</span>' +
+          '</div>' +
+          '<div class="flex flex-col gap-1 mt-1">' +
+            '<label class="text-[11px] text-gray-500 font-medium ml-1">ชื่อคอลัมน์ใน Excel/CSV</label>' +
+            '<input type="text" class="v-column text-sm px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 shadow-sm font-anuphan w-full bg-white" value="' + escapeHtml(v.column || '') + '" placeholder="เช่น รายชื่อ, ลำดับชั้น">' +
+          '</div>' +
+          '<div class="flex flex-col gap-1.5 mt-1">' +
+            '<div class="flex items-center justify-between ml-1">' +
+              '<label class="text-[11px] text-gray-500 font-medium">ข้อมูล key-value</label>' +
+              '<span class="text-[10px] text-gray-400 font-mono">' + keys.length + ' คู่</span>' +
+            '</div>' +
+            '<div class="kv-list flex flex-col gap-1">' + kvRowsHtml + '</div>' +
+            '<button class="kv-add w-full mt-1 py-1 text-[11px] text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded font-anuphan font-medium transition flex items-center justify-center gap-1">' +
+              '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>' +
+              'เพิ่มข้อมูล' +
+            '</button>' +
+          '</div>';
 
-          <div class="flex flex-col gap-1 mt-1">
-            <label class="text-[11px] text-gray-500 font-medium ml-1">ชื่อคอลัมน์ใน Excel/CSV (หลัก)</label>
-            <input type="text" class="v-column text-sm px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 shadow-sm font-anuphan w-full bg-white"
-                   value="${escapeHtml(v.column || '')}" placeholder="เช่น รายชื่อ, ลำดับชั้น">
-          </div>
+        card.querySelector('.v-column').addEventListener('input', function (e) { v.column = e.target.value; });
 
-          <div class="flex flex-col gap-1.5 mt-1">
-            <div class="flex items-center justify-between ml-1">
-              <label class="text-[11px] text-gray-500 font-medium">ข้อมูล key-value</label>
-              <span class="text-[10px] text-gray-400 font-mono">${Object.keys(v.data || {}).length} คู่</span>
-            </div>
-            <div class="kv-list flex flex-col gap-1">${kvRowsHtml || '<p class="text-[11px] text-gray-400 italic text-center py-1">— ยังไม่มีข้อมูล —</p>'}</div>
-            <button class="kv-add w-full mt-1 py-1 text-[11px] text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded font-anuphan font-medium transition flex items-center justify-center gap-1">
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-              เพิ่มข้อมูล
-            </button>
-          </div>
-        `;
-
-        // ==== Event: column ====
-        card.querySelector('.v-column').addEventListener('input', (e) => {
-          v.column = e.target.value;
-        });
-
-        // ==== Event: แก้ key ====
-        card.querySelectorAll('.kv-key').forEach(inp => {
-          inp.addEventListener('input', (e) => {
+        card.querySelectorAll('.kv-key').forEach(function (inp) {
+          inp.addEventListener('input', function (e) {
             const origKey = e.target.dataset.origKey;
             const newKey = e.target.value;
             if (newKey === origKey) return;
@@ -739,20 +711,16 @@
             e.target.dataset.origKey = newKey;
           });
         });
-
-        // ==== Event: แก้ value ====
-        card.querySelectorAll('.kv-val').forEach(inp => {
-          inp.addEventListener('input', () => {
-            // หา key ปัจจุบันจาก row
+        card.querySelectorAll('.kv-val').forEach(function (inp) {
+          inp.addEventListener('input', function () {
             const row = inp.closest('.kv-row');
             const k = row.querySelector('.kv-key').dataset.origKey;
             v.data[k] = inp.value;
           });
         });
 
-        // ==== Event: ลบ row ====
-        card.querySelectorAll('.kv-del').forEach(btn => {
-          btn.addEventListener('click', () => {
+        card.querySelectorAll('.kv-del').forEach(function (btn) {
+          btn.addEventListener('click', function () {
             const row = btn.closest('.kv-row');
             const k = row.querySelector('.kv-key').dataset.origKey;
             delete v.data[k];
@@ -760,32 +728,28 @@
           });
         });
 
-        // ==== Event: เพิ่ม row ====
-        card.querySelector('.kv-add').addEventListener('click', () => {
-          // เปิดชื่อ key ใหม่ไม่ให้ซ้ำ
+        card.querySelector('.kv-add').addEventListener('click', function () {
           let newKey = 'key' + (Object.keys(v.data).length + 1);
           while (v.data[newKey] !== undefined) newKey = '_' + newKey;
           v.data[newKey] = '';
           updateVariableMappingUI();
         });
 
-        // ==== Hover highlight ====
-        card.addEventListener('mouseenter', () => {
-          const obj = canvas.getObjects().find(o => o.varId === v.id);
+        card.addEventListener('mouseenter', function () {
+          const obj = canvas.getObjects().find(function (o) { return o.varId === v.id; });
           if (obj && canvas.getActiveObject() !== obj) {
             obj.set('opacity', 0.6);
             canvas.renderAll();
           }
         });
-        card.addEventListener('mouseleave', () => {
-          const obj = canvas.getObjects().find(o => o.varId === v.id);
+        card.addEventListener('mouseleave', function () {
+          const obj = canvas.getObjects().find(function (o) { return o.varId === v.id; });
           if (obj) { obj.set('opacity', 1); canvas.renderAll(); }
         });
 
-        // ==== คลิกการ์ด (ไม่ใช่ input) → เลือกบน canvas ====
-        card.addEventListener('click', (e) => {
+        card.addEventListener('click', function (e) {
           if (e.target.closest('input, button')) return;
-          const obj = canvas.getObjects().find(o => o.varId === v.id);
+          const obj = canvas.getObjects().find(function (o) { return o.varId === v.id; });
           if (obj) {
             canvas.setActiveObject(obj);
             canvas.renderAll();
@@ -796,20 +760,15 @@
       });
     }
 
-    // ==========================================
-    // 9. Add / Delete Text
-    // ==========================================
-    addTextBtn.addEventListener('click', () => {
+    addTextBtn.addEventListener('click', function () {
       if (!canvas) return;
 
       const id = varIdCounter++;
-
-      // ★★★ สร้าง VARIABLE OBJECT ใหม่ ★★★
       const newVar = {
         id: id,
-        text: `ตัวแปร${id}`,
+        text: 'ตัวแปร' + id,
         column: '',
-        data: {},                       // ← ใส่ key-value ทีหลังได้
+        data: {},
         fontFamily: 'Anuphan',
         fontSize: 24,
         fill: '#FFFFFF',
@@ -819,9 +778,6 @@
       };
       variables.push(newVar);
 
-      console.log(`✅ สร้างตัวแปรใหม่ → variables[${variables.length - 1}] =`, newVar);
-
-      // สร้าง fabric object ที่ผูกกับ variable
       const textObj = new fabric.IText(newVar.text, {
         left: newVar.left, top: newVar.top,
         fontFamily: newVar.fontFamily, fill: newVar.fill, fontSize: newVar.fontSize,
@@ -839,59 +795,55 @@
       textPropertiesPanel.classList.remove('hidden');
     });
 
-    deleteTextBtn.addEventListener('click', () => {
+    deleteTextBtn.addEventListener('click', function () {
       if (!canvas) return;
       const activeObjects = canvas.getActiveObjects();
-      if (activeObjects.length) {
-        activeObjects.forEach((obj) => {
-          if (obj.type === 'i-text' || obj.type === 'text') {
-            const v = getVariableByFabricObj(obj);
-            if (v) variables = variables.filter(x => x.id !== v.id);
-            canvas.remove(obj);
-          }
-        });
-        canvas.discardActiveObject();
-        canvas.renderAll();
-        updateVariableMappingUI();
-        textPropertiesPanel.classList.add('hidden');
-      }
-    });
+      if (!activeObjects.length) return;
 
-    document.addEventListener('keydown', (e) => {
-      const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT';
-      if (!isInput && (e.key === 'Delete' || e.key === 'Backspace') && !stepEditor.classList.contains('hidden')) {
-        if (canvas) {
-          const activeObjects = canvas.getActiveObjects();
-          if (activeObjects.length > 0) {
-            e.preventDefault();
-            if (activeObjects[0].isEditing) return;
-            activeObjects.forEach(obj => {
-              if (obj.type === 'i-text' || obj.type === 'text') {
-                const v = getVariableByFabricObj(obj);
-                if (v) variables = variables.filter(x => x.id !== v.id);
-                canvas.remove(obj);
-              }
-            });
-            canvas.discardActiveObject();
-            canvas.renderAll();
-            updateVariableMappingUI();
-            textPropertiesPanel.classList.add('hidden');
-          }
+      activeObjects.forEach(function (obj) {
+        if (obj.type === 'i-text' || obj.type === 'text') {
+          const v = getVariableByFabricObj(obj);
+          if (v) variables = variables.filter(function (x) { return x.id !== v.id; });
+          canvas.remove(obj);
         }
+      });
+      canvas.discardActiveObject();
+      canvas.renderAll();
+      updateVariableMappingUI();
+      textPropertiesPanel.classList.add('hidden');
+    });
+
+    document.addEventListener('keydown', function (e) {
+      const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT';
+      if (isInput) return;
+      if (e.key !== 'Delete' && e.key !== 'Backspace') return;
+      if (stepEditor.classList.contains('hidden') || !canvas) return;
+
+      const activeObjects = canvas.getActiveObjects();
+      if (!activeObjects.length) return;
+      if (activeObjects[0].isEditing) return;
+
+      e.preventDefault();
+      activeObjects.forEach(function (obj) {
+        if (obj.type === 'i-text' || obj.type === 'text') {
+          const v = getVariableByFabricObj(obj);
+          if (v) variables = variables.filter(function (x) { return x.id !== v.id; });
+          canvas.remove(obj);
+        }
+      });
+      canvas.discardActiveObject();
+      canvas.renderAll();
+      updateVariableMappingUI();
+      textPropertiesPanel.classList.add('hidden');
+    });
+
+    generatePdfBtn.addEventListener('click', function () {
+      if (!canvas || variables.length === 0) {
+        showToast('กรุณาเพิ่มตัวแปรข้อความก่อนสร้างเอกสาร', 'warning');
+        return;
       }
+      showToast('ระบบสร้าง PDF กำลังพัฒนา', 'info', 4000);
     });
-
-    // ★ ปุ่มดู variables ใน console
-    dumpVarsBtn.addEventListener('click', () => {
-      console.clear();
-      console.log('%c📦 variables =', 'color:#f97316;font-weight:bold;font-size:14px', variables);
-      console.log('%c👉 ลองพิมพ์ใน console:', 'color:#16a34a;font-weight:bold');
-      console.log('   variables[0]              → ดูตัวแปรตัวแรก');
-      console.log('   variables[0].data         → ดู data object');
-      console.log('   variables[0].data["ชื่อนักเรียน"]  → ดึงค่าจริง');
-      alert('ดูผลลัพธ์ได้ที่ Console (กด F12)');
-    });
-
   </script>
 
 </body>
