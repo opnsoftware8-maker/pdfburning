@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PDFburning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&family=Trirong:wght@700;800&family=Sarabun:wght@400;600;700&family=Prompt:wght@400;600;700&family=Kanit:wght@400;600;700&family=Noto+Sans+Thai:wght@400;600;700&family=IBM+Plex+Sans+Thai:wght@400;600;700&family=Mitr:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fabric@6/dist/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@latest/dist/jspdf.umd.min.js"></script>
+  <style>
+    .font-trirong { font-family: 'Trirong', serif; }
+    .font-anuphan { font-family: 'Anuphan', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .color-swatch { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; flex-shrink: 0; }
+    .color-swatch:hover { transform: scale(1.08); border-color: #f97316; }
+    .color-swatch.active { border-color: #f97316; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #f97316; }
+    #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+    .toast { pointer-events: auto; min-width: 260px; max-width: 380px; padding: 14px 18px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); font-family: 'Anuphan', sans-serif; font-size: 14px; font-weight: 500; display: flex; align-items: flex-start; gap: 10px; animation: toastIn 0.3s ease; color: #fff; }
+    .toast.success { background: linear-gradient(135deg, #10b981, #059669); }
+    .toast.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .toast.info { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .toast.warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .toast svg { flex-shrink: 0; margin-top: 1px; }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes toastOut { to { opacity: 0; transform: translateX(30px); } }
+  </style>
+</head>
+<body class="bg-[#f0ebd5] min-h-screen flex flex-col justify-between text-gray-800">
+
+  <div id="toast-container"></div>
+
+  <div id="app" class="w-full">
+    <header class="w-full bg-gradient-to-r from-orange-700 via-orange-500 to-orange-300 text-white shadow-lg">
+      <div class="max-w-4xl mx-auto px-4 py-4 sm:px-6 sm:py-5 md:px-8 md:py-6 text-left md:text-center">
+        <h1 class="font-trirong text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-1 sm:mb-2">PDFburning</h1>
+        <p class="font-anuphan text-orange-100 text-xs sm:text-sm md:text-base font-semibold leading-relaxed max-w-3xl md:mx-auto">
+          เว็บไซต์สำหรับการช่วยลดภาระงานการกรอกข้อมูลสร้าง การ์ด, เกียรติบัตรหรือสิ่งใดที่คล้ายกัน ผ่านการเอาข้อมูลจาก ตาราง, PDF มากรอก
+        </p>
+      </div>
+    </header>
+
+    <div id="step-start" class="flex flex-col items-center justify-center mt-20 px-4">
+      <button id="start-btn" type="button" class="px-10 py-3.5 bg-gradient-to-b from-yellow-500 via-orange-400 to-orange-600 text-white font-anuphan font-semibold text-lg rounded-xl shadow-md transition-all duration-150 ease-in-out hover:brightness-105 active:scale-95 outline-none hover:shadow-lg flex items-center gap-2">
+        <span>เริ่มทำงาน</span>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+      </button>
+    </div>
+
+    <div id="step-upload" class="hidden max-w-4xl mx-auto px-4 mt-10">
+      <div class="text-center mb-8">
+        <h2 class="font-trirong text-2xl sm:text-3xl font-bold text-orange-800 mb-1">เตรียมข้อมูลเอกสาร</h2>
+        <p class="font-anuphan text-sm text-gray-600">กรุณาเลือกไฟล์ภาพแม่แบบ และไฟล์ตารางข้อมูลสำหรับนำไปจัดวาง</p>
+      </div>
+
+      <div id="upload-alert" class="hidden mb-6 p-4 bg-amber-50 border border-amber-300 text-amber-900 rounded-xl text-sm font-anuphan flex items-center gap-3 shadow-sm">
+        <svg class="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <span id="upload-alert-text">กรุณาเลือกไฟล์ภาพแม่แบบก่อนกดตกลง</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-200/80 hover:border-orange-300 transition flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-[10px] text-xs font-semibold bg-orange-100 text-orange-700 font-anuphan">
+                <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span> 1 อัพโหลดรูปภาพ
+              </span>
+              <span id="img-status-badge" class="hidden text-xs text-emerald-600 font-medium font-anuphan flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> เลือกแล้ว
+              </span>
+            </div>
+            <h3 class="font-trirong text-xl font-bold text-orange-800 mb-1">1. อัพโหลดแม่แบบรูปภาพ</h3>
+            <p class="font-anuphan text-xs sm:text-sm text-gray-500 mb-5">เลือกรูปภาพเกียรติบัตร หรือการ์ดที่ต้องการนำมาใช้งาน</p>
+
+            <div id="image-dropzone" class="border-2 border-dashed border-orange-200 rounded-xl p-5 text-center bg-orange-50/40 hover:bg-orange-50 transition cursor-pointer flex flex-col items-center justify-center min-h-[160px]">
+              <div id="image-placeholder" class="flex flex-col items-center">
+                <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                </div>
+                <span class="font-anuphan text-sm font-semibold text-gray-700 mb-1">คลิกเพื่อเลือกไฟล์รูปภาพ</span>
+                <span class="font-anuphan text-xs text-gray-400">รองรับไฟล์ .PNG, .JPG, .JPEG</span>
+              </div>
+              <div id="image-preview-container" class="hidden w-full flex flex-col items-center">
+                <img id="image-preview" src="" alt="พรีวิวแม่แบบ" class="max-h-28 rounded-lg shadow-sm object-contain mb-2 border border-gray-200">
+                <p id="image-filename" class="font-anuphan text-xs font-semibold text-orange-900 truncate max-w-full"></p>
+                <span class="font-anuphan text-[11px] text-orange-600 underline mt-1">คลิกเพื่อเปลี่ยนรูปภาพ</span>
+              </div>
+            </div>
+          </div>
+          <input type="file" id="image-upload" accept="image/*" class="hidden">
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-200/80 hover:border-orange-300 transition flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs font-semibold bg-blue-50 text-blue-700 font-anuphan">
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> 2 อัพโหลดไฟล์/ข้อมูล
+              </span>
+              <span id="file-status-badge" class="hidden text-xs text-emerald-600 font-medium font-anuphan flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> เลือกแล้ว
+              </span>
+            </div>
+            <h3 class="font-trirong text-xl font-bold text-orange-800 mb-1">2. อัพโหลดไฟล์ข้อมูล</h3>
+            <p class="font-anuphan text-xs sm:text-sm text-gray-500 mb-5">ไฟล์ข้อมูลตารางหรือเอกสารที่จะนำมากรอกลงในการ์ด</p>
+
+            <div id="file-dropzone" class="border-2 border-dashed border-blue-200 rounded-xl p-5 text-center bg-blue-50/30 hover:bg-blue-50/60 transition cursor-pointer flex flex-col items-center justify-center min-h-[160px]">
+              <div id="file-placeholder" class="flex flex-col items-center">
+                <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                </div>
+                <span class="font-anuphan text-sm font-semibold text-gray-700 mb-1">คลิกเพื่อเลือกไฟล์ข้อมูล</span>
+                <span class="font-anuphan text-xs text-gray-400">Excel (.xlsx), CSV</span>
+              </div>
+              <div id="file-preview-container" class="hidden w-full flex flex-col items-center py-2">
+                <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-2">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                </div>
+                <p id="file-name" class="font-anuphan text-xs font-semibold text-gray-800 truncate max-w-full"></p>
+                <p id="file-size" class="font-anuphan text-[11px] text-gray-500"></p>
+                <span class="font-anuphan text-[11px] text-blue-600 underline mt-2">คลิกเพื่อเปลี่ยนไฟล์ข้อมูล</span>
+              </div>
+            </div>
+          </div>
+          <input type="file" id="data-upload" accept=".xlsx,.xls,.csv" class="hidden">
+        </div>
+      </div>
+
+      <div class="mt-8 pt-6 border-t border-orange-200/80 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4">
+        <button id="cancel-btn" type="button" class="w-full sm:w-auto px-7 py-2.5 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 active:bg-gray-100 text-gray-700 font-anuphan font-semibold text-sm transition shadow-sm flex items-center justify-center gap-2">
+          <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          <span>ยกเลิก</span>
+        </button>
+        <button id="confirm-btn" type="button" class="w-full sm:w-auto px-8 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-anuphan font-semibold text-sm rounded-xl shadow-md hover:shadow transition active:scale-98 flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+          <span>ตกลง</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="step-editor" class="hidden max-w-6xl mx-auto px-4 mt-8 flex flex-col items-center">
+      
+      <div class="w-full bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-3 flex-wrap">
+          <span class="font-trirong font-bold text-gray-800 text-lg">จัดการเลย์เอาต์ตัวแปร</span>
+          <div id="attached-file-tag" class="hidden text-xs bg-orange-100 text-orange-800 font-anuphan px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-orange-200">
+            <svg class="w-3.5 h-3.5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <span id="attached-file-text">ไฟล์ข้อมูล: -</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="reset-btn" class="px-3.5 py-1.5 text-xs text-orange-700 hover:bg-orange-50 rounded-lg border border-orange-200 font-anuphan font-medium transition flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <span>เปลี่ยนรูปภาพ/ไฟล์ใหม่</span>
+          </button>
+        </div>
+      </div>
+      
+      <div class="w-full flex items-center justify-between mb-3 bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
+        <div class="flex gap-2 flex-wrap">
+          <button id="add-text-btn" class="px-4 py-2 bg-gradient-to-r from-orange-100 to-orange-50 text-orange-800 hover:from-orange-200 hover:to-orange-100 rounded-md text-sm font-anuphan font-medium flex items-center gap-1.5 transition border border-orange-200">
+            <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            เพิ่มตัวแปรข้อความ
+          </button>
+          <button id="delete-text-btn" class="px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 rounded-md text-sm font-anuphan font-medium flex items-center gap-1.5 transition border border-red-200">
+            <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            ลบที่เลือก
+          </button>
+        </div>
+        <div class="text-xs text-gray-500 font-anuphan hidden sm:block">
+          *ดับเบิลคลิกที่ข้อความบนรูปเพื่อเปลี่ยนชื่อ
+        </div>
+      </div>
+
+      <div class="w-full flex flex-col lg:flex-row gap-5 items-start">
+        
+        <div class="w-full lg:w-2/3 flex justify-center border border-gray-300 shadow-sm rounded-xl overflow-hidden bg-white p-2">
+          <canvas id="fabric-canvas"></canvas>
+        </div>
+
+        <div class="w-full lg:w-1/3 bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col h-full min-h-[400px]">
+          
+          <div class="border-b border-gray-100 pb-3 mb-3">
+            <h3 class="font-trirong font-bold text-lg text-gray-800 flex items-center gap-2">
+              <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+              ตัวแปร
+            </h3>
+            <p class="text-xs text-gray-500 font-anuphan mt-1">แต่ละตัวแปรเก็บเป็น object ใน array</p>
+          </div>
+          
+          <div id="variable-mapping-list" class="flex flex-col gap-3 font-anuphan overflow-y-auto no-scrollbar flex-grow max-h-[420px]">
+            <div class="flex flex-col items-center justify-center text-center py-10 px-4 h-full border-2 border-dashed border-gray-100 rounded-lg bg-gray-50/50">
+              <svg class="w-10 h-10 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+              <p class="text-sm text-gray-500 font-medium">ยังไม่มีตัวแปรบนเอกสาร</p>
+              <p class="text-xs text-gray-400 mt-1">กดปุ่ม "เพิ่มตัวแปรข้อความ" เพื่อเริ่มต้น</p>
+            </div>
+          </div>
+
+          <div id="text-properties-panel" class="hidden mt-4 pt-4 border-t border-gray-200">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="font-trirong font-bold text-base text-gray-800 flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                ปรับแต่งข้อความ
+              </h4>
+              <span id="selected-text-name" class="text-xs font-medium text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full truncate max-w-[140px]"></span>
+            </div>
+
+            <div class="mb-3">
+              <label class="text-xs font-medium text-gray-600 block mb-1.5">สีข้อความ</label>
+              <div class="flex items-center gap-2 flex-wrap">
+                <input type="color" id="text-color-picker" value="#FFFFFF" class="w-8 h-8 p-0 border-0 rounded-full cursor-pointer bg-transparent">
+                <div class="flex gap-1.5 flex-wrap">
+                  <button class="color-swatch active" style="background:#FFFFFF" data-color="#FFFFFF"></button>
+                  <button class="color-swatch" style="background:#000000" data-color="#000000"></button>
+                  <button class="color-swatch" style="background:#EF4444" data-color="#EF4444"></button>
+                  <button class="color-swatch" style="background:#3B82F6" data-color="#3B82F6"></button>
+                  <button class="color-swatch" style="background:#22C55E" data-color="#22C55E"></button>
+                  <button class="color-swatch" style="background:#F97316" data-color="#F97316"></button>
+                  <button class="color-swatch" style="background:#EAB308" data-color="#EAB308"></button>
+                  <button class="color-swatch" style="background:#8B5CF6" data-color="#8B5CF6"></button>
+                  <button class="color-swatch" style="background:#EC4899" data-color="#EC4899"></button>
+                  <button class="color-swatch" style="background:#6B7280" data-color="#6B7280"></button>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="text-xs font-medium text-gray-600 block mb-1.5">ฟอนต์</label>
+              <select id="text-font-select" class="w-full text-sm px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 shadow-sm font-anuphan">
+                <option value="Anuphan">Anuphan</option>
+                <option value="Trirong">Trirong</option>
+                <option value="Sarabun">Sarabun</option>
+                <option value="Prompt">Prompt</option>
+                <option value="Kanit">Kanit</option>
+                <option value="Noto Sans Thai">Noto Sans Thai</option>
+                <option value="IBM Plex Sans Thai">IBM Plex Sans Thai</option>
+                <option value="Mitr">Mitr</option>
+                <option value="Arial">Arial</option>
+                <option value="Helvetica">Helvetica</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="text-xs font-medium text-gray-600 block mb-1.5">ขนาดตัวอักษร</label>
+              <div class="flex items-center gap-2">
+                <button id="font-size-down" class="w-8 h-8 flex items-center justify-center rounded-md border border-gray-300 bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold text-lg transition">−</button>
+                <select id="text-size-select" class="w-full text-sm px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 shadow-sm font-anuphan">
+                  <option value="16">16</option><option value="20">20</option><option value="24" selected>24</option>
+                  <option value="28">28</option><option value="32">32</option><option value="36">36</option>
+                  <option value="40">40</option><option value="48">48</option><option value="56">56</option>
+                  <option value="64">64</option><option value="72">72</option><option value="80">80</option>
+                </select>
+                <button id="font-size-up" class="w-8 h-8 flex items-center justify-center rounded-md border border-gray-300 bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold text-lg transition">+</button>
+              </div>
+            </div>
+
+            <button id="apply-to-all-btn" class="w-full mt-1 py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 font-anuphan font-medium text-sm rounded-lg border border-orange-200 transition flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              ใช้การตั้งค่ากับข้อความทั้งหมด
+            </button>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-gray-100">
+            <button id="generate-pdf-btn" class="w-full py-3 bg-gray-800 hover:bg-gray-900 text-white font-anuphan font-medium text-sm rounded-lg transition shadow-sm flex justify-center items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+              สร้างเอกสาร (PDF)
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="mt-20 border-t border-orange-200/90 bg-[#F9F6F0]">
+    <div class="max-w-4xl mx-auto px-6 py-8">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 class="font-trirong text-xl font-extrabold text-orange-700">PDFburning</h2>
+          <p class="font-anuphan mt-1 text-xs text-gray-500">สร้างเอกสารหลายใบจากข้อมูลตารางได้ง่ายขึ้น</p>
+        </div>
+        <div class="flex flex-wrap gap-x-4 font-anuphan text-xs text-gray-500">
+          <span>Canvas Editor</span><span>•</span><span>Data Mapping</span><span>•</span><span>PDF Generator</span>
+        </div>
+      </div>
+      <div class="mt-6 border-t border-orange-100 pt-4 text-center">
+        <p class="font-anuphan text-xs text-gray-400">© 2026 PDFburning · สร้างเอกสารให้ง่ายขึ้น</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const toastContainer = document.getElementById('toast-container');
+
+    function showToast(message, type, duration) {
+      type = type || 'info';
+      duration = duration || 3000;
+      const icons = {
+        success: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>',
+        error: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>',
+        warning: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01M5 19h14a2 2 0 001.84-2.75L13.74 4a2 2 0 00-3.48 0l-7.1 12.25A2 2 0 005 19z"/></svg>',
+        info: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+      };
+      const toast = document.createElement('div');
+      toast.className = 'toast ' + type;
+      toast.innerHTML = (icons[type] || icons.info) + '<span>' + message + '</span>';
+      toastContainer.appendChild(toast);
+      setTimeout(function () {
+        toast.style.animation = 'toastOut 0.3s ease forwards';
+        setTimeout(function () { toast.remove(); }, 300);
+      }, duration);
+    }
+
+    const startBtn = document.getElementById('start-btn');
+    const stepStart = document.getElementById('step-start');
+    const stepUpload = document.getElementById('step-upload');
+    const stepEditor = document.getElementById('step-editor');
+    const imageUpload = document.getElementById('image-upload');
+    const imageDropzone = document.getElementById('image-dropzone');
+    const imagePlaceholder = document.getElementById('image-placeholder');
+    const imagePreviewContainer = document.getElementById('image-preview-container');
+    const imagePreview = document.getElementById('image-preview');
+    const imageFilename = document.getElementById('image-filename');
+    const imgStatusBadge = document.getElementById('img-status-badge');
+    const dataUpload = document.getElementById('data-upload');
+    const fileDropzone = document.getElementById('file-dropzone');
+    const filePlaceholder = document.getElementById('file-placeholder');
+    const filePreviewContainer = document.getElementById('file-preview-container');
+    const fileNameText = document.getElementById('file-name');
+    const fileSizeText = document.getElementById('file-size');
+    const fileStatusBadge = document.getElementById('file-status-badge');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const confirmBtn = document.getElementById('confirm-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const uploadAlert = document.getElementById('upload-alert');
+    const uploadAlertText = document.getElementById('upload-alert-text');
+    const attachedFileTag = document.getElementById('attached-file-tag');
+    const attachedFileText = document.getElementById('attached-file-text');
+    const addTextBtn = document.getElementById('add-text-btn');
+    const deleteTextBtn = document.getElementById('delete-text-btn');
+    const mappingList = document.getElementById('variable-mapping-list');
+    const textPropertiesPanel = document.getElementById('text-properties-panel');
+    const textColorPicker = document.getElementById('text-color-picker');
+    const textFontSelect = document.getElementById('text-font-select');
+    const textSizeSelect = document.getElementById('text-size-select');
+    const fontSizeDown = document.getElementById('font-size-down');
+    const fontSizeUp = document.getElementById('font-size-up');
+    const applyToAllBtn = document.getElementById('apply-to-all-btn');
+    const selectedTextName = document.getElementById('selected-text-name');
+    const colorSwatches = document.querySelectorAll('.color-swatch');
+    const generatePdfBtn = document.getElementById('generate-pdf-btn');
+
+    let canvas = null;
+    let selectedImageDataUrl = null;
+    let selectedDataFile = null;
+    let isUpdatingFromCanvas = false;
+
+    // ==========================================
+    // ARRAY ของ OBJECT ตัวแปร ( dynamic 1 ถึง ∞ )
+    // โครงสร้างข้อมูลแต่ละตัวแปร:
+    // variables[i] = {
+    //   id: 1,
+    //   text: "ตัวแปร1",             // ชื่อตัวแปร / อักขระตัวแปร
+    //   column: "รายชื่อ",            // คอลัมน์ / ชื่อของตัวแปร
+    //   fontFamily: "Anuphan",       // ฟอนต์
+    //   fontSize: 24,                // ขนาดฟอนต์
+    //   fill: "#FFFFFF",             // สีฟอนต์
+    //   left: 300,                   // ตำแหน่ง X
+    //   top: 200,                    // ตำแหน่ง Y
+    //   angle: 0                     // มุมหมุน
+    // }
+    // ==========================================
+    let variables = [];
+    let varIdCounter = 1;
+
+    function getVariableByFabricObj(obj) {
+      if (!obj || obj.varId == null) return null;
+      return variables.find(function (v) { return v.id === obj.varId; });
+    }
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (ch) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+      });
+    }
+
+    startBtn.addEventListener('click', function () {
+      stepStart.classList.add('hidden');
+      stepUpload.classList.remove('hidden');
+      uploadAlert.classList.add('hidden');
+    });
+
+    imageDropzone.addEventListener('click', function () { imageUpload.click(); });
+    fileDropzone.addEventListener('click', function () { dataUpload.click(); });
+
+    imageUpload.addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      uploadAlert.classList.add('hidden');
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        selectedImageDataUrl = event.target.result;
+        imagePreview.src = selectedImageDataUrl;
+        imageFilename.textContent = file.name;
+        imagePlaceholder.classList.add('hidden');
+        imagePreviewContainer.classList.remove('hidden');
+        imgStatusBadge.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    dataUpload.addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      selectedDataFile = file;
+      const sizeInKb = (file.size / 1024).toFixed(1);
+      const sizeText = file.size > 1024 * 1024 ? (file.size / (1024 * 1024)).toFixed(2) + ' MB' : sizeInKb + ' KB';
+      fileNameText.textContent = file.name;
+      fileSizeText.textContent = 'ขนาด ' + sizeText;
+      filePlaceholder.classList.add('hidden');
+      filePreviewContainer.classList.remove('hidden');
+      fileStatusBadge.classList.remove('hidden');
+    });
+
+    cancelBtn.addEventListener('click', function () {
+      resetUploadData();
+      stepUpload.classList.add('hidden');
+      stepStart.classList.remove('hidden');
+    });
+
+    confirmBtn.addEventListener('click', function () {
+      if (!selectedImageDataUrl) {
+        uploadAlert.classList.remove('hidden');
+        uploadAlertText.textContent = 'กรุณาเลือกไฟล์ภาพแม่แบบก่อนกดตกลง';
+        showToast('กรุณาเลือกไฟล์ภาพแม่แบบก่อน', 'warning');
+        return;
+      }
+      stepUpload.classList.add('hidden');
+      stepEditor.classList.remove('hidden');
+      if (selectedDataFile) {
+        attachedFileTag.classList.remove('hidden');
+        attachedFileText.textContent = 'ไฟล์ข้อมูล: ' + selectedDataFile.name;
+      } else {
+        attachedFileTag.classList.add('hidden');
+      }
+      renderFabricCanvas(selectedImageDataUrl);
+    });
+
+    resetBtn.addEventListener('click', function () {
+      stepEditor.classList.add('hidden');
+      stepUpload.classList.remove('hidden');
+      if (canvas) { canvas.clear(); canvas = null; }
+      variables = [];
+      varIdCounter = 1;
+      textPropertiesPanel.classList.add('hidden');
+    });
+
+    function resetUploadData() {
+      selectedImageDataUrl = null;
+      selectedDataFile = null;
+      imageUpload.value = '';
+      dataUpload.value = '';
+      imagePlaceholder.classList.remove('hidden');
+      imagePreviewContainer.classList.add('hidden');
+      imgStatusBadge.classList.add('hidden');
+      filePlaceholder.classList.remove('hidden');
+      filePreviewContainer.classList.add('hidden');
+      fileStatusBadge.classList.add('hidden');
+      uploadAlert.classList.add('hidden');
+    }
+
+    function renderFabricCanvas(imageUrl) {
+      const imgObj = new Image();
+      imgObj.src = imageUrl;
+      imgObj.onload = function () {
+        const maxWidth = Math.min(window.innerWidth - 40, 800);
+        const scaleRatio = maxWidth / imgObj.width;
+        const canvasWidth = maxWidth;
+        const canvasHeight = imgObj.height * scaleRatio;
+
+        if (!canvas) {
+          canvas = new fabric.Canvas('fabric-canvas');
+          setupCanvasEvents();
+        }
+
+        canvas.setDimensions({ width: canvasWidth, height: canvasHeight });
+        const ImageClass = fabric.FabricImage || fabric.Image;
+        const fabricImg = new ImageClass(imgObj, {
+          scaleX: scaleRatio, scaleY: scaleRatio,
+          selectable: false, evented: false
+        });
+        
+        canvas.clear();
+        canvas.add(fabricImg);
+        canvas.renderAll();
+
+        variables.forEach(function (v) {
+          const textObj = new fabric.IText(v.text || 'ตัวแปร', {
+            left: v.left, top: v.top, angle: v.angle || 0,
+            fontFamily: v.fontFamily, fontSize: v.fontSize, fill: v.fill,
+            fontWeight: 'bold',
+            transparentCorners: false,
+            cornerColor: '#F59E0B', cornerSize: 8, borderColor: '#F59E0B', padding: 5
+          });
+          textObj.varId = v.id;
+          canvas.add(textObj);
+        });
+        canvas.renderAll();
+
+        updateVariableMappingUI();
+        textPropertiesPanel.classList.add('hidden');
+      };
+    }
+
+    function setupCanvasEvents() {
+      canvas.on('text:changed', function (e) {
+        const obj = e.target;
+        const v = getVariableByFabricObj(obj);
+        if (v) {
+          v.text = obj.text;
+          v.column = obj.text; // อัปเดตชื่อตัวแปรโดยอัตโนมัติ
+        }
+        updateVariableMappingUI();
+        updateTextPropertiesPanel(obj);
+      });
+
+      canvas.on('object:modified', function (e) {
+        const obj = e.target;
+        const v = getVariableByFabricObj(obj);
+        if (v && (obj.type === 'i-text' || obj.type === 'text')) {
+          v.left = Math.round(obj.left);
+          v.top = Math.round(obj.top);
+          v.angle = Math.round(obj.angle || 0);
+          v.fontSize = Math.round(obj.fontSize * (obj.scaleY || 1));
+          v.fontFamily = obj.fontFamily;
+          v.fill = obj.fill;
+        }
+        updateVariableMappingUI();
+        if (canvas.getActiveObject() === obj) updateTextPropertiesPanel(obj);
+      });
+
+      canvas.on('object:moving', function (e) {
+        const obj = e.target;
+        const v = getVariableByFabricObj(obj);
+        if (v) {
+          v.left = Math.round(obj.left);
+          v.top = Math.round(obj.top);
+          updateVariableMappingUI();
+        }
+      });
+
+      canvas.on('object:removed', function (e) {
+        const obj = e.target;
+        if (obj && obj.varId != null) {
+          variables = variables.filter(function (v) { return v.id !== obj.varId; });
+          updateVariableMappingUI();
+        }
+      });
+
+      const handleSel = function (e) {
+        const obj = e.selected && e.selected[0];
+        if (obj && (obj.type === 'i-text' || obj.type === 'text')) {
+          updateTextPropertiesPanel(obj);
+          textPropertiesPanel.classList.remove('hidden');
+        } else {
+          textPropertiesPanel.classList.add('hidden');
+        }
+      };
+      canvas.on('selection:created', handleSel);
+      canvas.on('selection:updated', handleSel);
+      canvas.on('selection:cleared', function () { textPropertiesPanel.classList.add('hidden'); });
+    }
+
+    function updateTextPropertiesPanel(obj) {
+      if (!obj) return;
+      isUpdatingFromCanvas = true;
+      selectedTextName.textContent = obj.text || '(ไม่มีชื่อ)';
+      selectedTextName.title = obj.text || '';
+
+      const color = obj.fill || '#FFFFFF';
+      textColorPicker.value = color;
+      colorSwatches.forEach(function (sw) { sw.classList.toggle('active', sw.dataset.color === color); });
+
+      const font = obj.fontFamily || 'Anuphan';
+      if ([].slice.call(textFontSelect.options).some(function (opt) { return opt.value === font; })) textFontSelect.value = font;
+      else textFontSelect.value = 'Anuphan';
+
+      const size = Math.round(obj.fontSize * (obj.scaleY || 1)) || 24;
+      if ([].slice.call(textSizeSelect.options).some(function (opt) { return parseInt(opt.value) === size; })) textSizeSelect.value = size;
+      else textSizeSelect.value = '24';
+
+      isUpdatingFromCanvas = false;
+    }
+
+    function updateSelectedObjectFromPanel() {
+      if (isUpdatingFromCanvas) return;
+      const active = canvas ? canvas.getActiveObject() : null;
+      if (!active || !(active.type === 'i-text' || active.type === 'text')) return;
+
+      const color = textColorPicker.value;
+      const font = textFontSelect.value;
+      const size = parseInt(textSizeSelect.value) || 24;
+
+      active.set({ fill: color, fontFamily: font, fontSize: size, scaleX: 1, scaleY: 1 });
+      canvas.renderAll();
+
+      const v = getVariableByFabricObj(active);
+      if (v) {
+        v.fill = color;
+        v.fontFamily = font;
+        v.fontSize = size;
+      }
+
+      colorSwatches.forEach(function (sw) { sw.classList.toggle('active', sw.dataset.color === color); });
+      selectedTextName.textContent = active.text || '(ไม่มีชื่อ)';
+      updateVariableMappingUI();
+    }
+
+    textColorPicker.addEventListener('input', updateSelectedObjectFromPanel);
+    textFontSelect.addEventListener('change', updateSelectedObjectFromPanel);
+    textSizeSelect.addEventListener('change', updateSelectedObjectFromPanel);
+
+    fontSizeDown.addEventListener('click', function () {
+      let val = parseInt(textSizeSelect.value) || 24;
+      val = Math.max(8, val - 2);
+      textSizeSelect.value = val;
+      updateSelectedObjectFromPanel();
+    });
+    fontSizeUp.addEventListener('click', function () {
+      let val = parseInt(textSizeSelect.value) || 24;
+      val = Math.min(200, val + 2);
+      textSizeSelect.value = val;
+      updateSelectedObjectFromPanel();
+    });
+
+    colorSwatches.forEach(function (sw) {
+      sw.addEventListener('click', function () {
+        textColorPicker.value = sw.dataset.color;
+        updateSelectedObjectFromPanel();
+      });
+    });
+
+    applyToAllBtn.addEventListener('click', function () {
+      if (!canvas) return;
+      const textObjects = canvas.getObjects().filter(function (obj) { return obj.type === 'i-text' || obj.type === 'text'; });
+      if (textObjects.length === 0) {
+        showToast('ยังไม่มีข้อความบนเอกสาร', 'warning');
+        return;
+      }
+      if (!confirm('ต้องการนำการตั้งค่าสี ฟอนต์ และขนาดไปใช้กับข้อความทั้งหมดหรือไม่?')) return;
+
+      const color = textColorPicker.value;
+      const font = textFontSelect.value;
+      const size = parseInt(textSizeSelect.value) || 24;
+
+      textObjects.forEach(function (obj) {
+        obj.set({ fill: color, fontFamily: font, fontSize: size, scaleX: 1, scaleY: 1 });
+        const v = getVariableByFabricObj(obj);
+        if (v) { v.fill = color; v.fontFamily = font; v.fontSize = size; }
+      });
+      canvas.renderAll();
+
+      const active = canvas.getActiveObject();
+      if (active && (active.type === 'i-text' || active.type === 'text')) updateTextPropertiesPanel(active);
+      updateVariableMappingUI();
+      showToast('นำการตั้งค่าไปใช้กับข้อความทั้งหมดแล้ว', 'success');
+    });
+
+    // ==========================================
+    // แสดงผล UI การ์ดตัวแปร (1 ถึง ∞)
+    // เก็บค่า: ชื่อตัวแปร, พิกัดตำแหน่ง, สี, ฟอนต์, ขนาดฟอนต์
+    // ==========================================
+    function updateVariableMappingUI() {
+      mappingList.innerHTML = '';
+
+      if (variables.length === 0) {
+        mappingList.innerHTML =
+          '<div class="flex flex-col items-center justify-center text-center py-10 px-4 h-full border-2 border-dashed border-gray-100 rounded-lg bg-gray-50/50">' +
+            '<svg class="w-10 h-10 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>' +
+            '<p class="text-sm text-gray-500 font-medium">ยังไม่มีตัวแปรบนเอกสาร</p>' +
+            '<p class="text-xs text-gray-400 mt-1">กดปุ่ม "เพิ่มตัวแปรข้อความ" เพื่อเริ่มต้น</p>' +
+          '</div>';
+        return;
+      }
+
+      variables.forEach(function (v, index) {
+        const card = document.createElement('div');
+        card.className = 'bg-gray-50 border border-gray-200 p-3.5 rounded-xl flex flex-col gap-2.5 hover:border-orange-300 transition-colors shadow-sm';
+
+        card.innerHTML =
+          '<div class="flex items-center justify-between gap-2 border-b border-gray-200/80 pb-2">' +
+            '<div class="flex items-center gap-2 overflow-hidden flex-1">' +
+              '<span class="flex-shrink-0 w-6 h-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs font-bold font-anuphan shadow-xs">' + (index + 1) + '</span>' +
+              '<span class="text-sm font-bold text-gray-800 truncate" title="' + escapeHtml(v.text) + '">' + escapeHtml(v.text) + '</span>' +
+            '</div>' +
+            '<button class="delete-var-btn text-gray-400 hover:text-red-500 p-1 rounded-md hover:bg-red-50 transition flex-shrink-0" title="ลบตัวแปรนี้">' +
+              '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>' +
+            '</button>' +
+          '</div>' +
+
+          '<div class="flex flex-col gap-1">' +
+            '<label class="text-[11px] font-semibold text-gray-600 font-anuphan">ชื่อตัวแปร / คอลัมน์ที่สอดคล้อง</label>' +
+            '<input type="text" class="v-name-input text-xs px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 shadow-xs font-anuphan bg-white font-medium text-gray-800" value="' + escapeHtml(v.text) + '" placeholder="ระบุชื่อตัวแปร">' +
+          '</div>' +
+
+          '<div class="grid grid-cols-2 gap-2 bg-white p-2.5 rounded-lg border border-gray-100 text-[11px] font-anuphan text-gray-600">' +
+            '<div class="flex items-center gap-1.5 truncate">' +
+              '<span class="text-gray-400 font-medium">ตำแหน่ง:</span>' +
+              '<span class="font-mono text-gray-800 font-semibold">X:' + Math.round(v.left) + ' Y:' + Math.round(v.top) + '</span>' +
+            '</div>' +
+            '<div class="flex items-center gap-1.5 truncate">' +
+              '<span class="text-gray-400 font-medium">ขนาด:</span>' +
+              '<span class="font-semibold text-gray-800">' + Math.round(v.fontSize) + ' px</span>' +
+            '</div>' +
+            '<div class="flex items-center gap-1.5 truncate">' +
+              '<span class="text-gray-400 font-medium">ฟอนต์:</span>' +
+              '<span class="font-semibold text-gray-800 truncate" title="' + escapeHtml(v.fontFamily) + '">' + escapeHtml(v.fontFamily) + '</span>' +
+            '</div>' +
+            '<div class="flex items-center gap-1.5 truncate">' +
+              '<span class="text-gray-400 font-medium">สี:</span>' +
+              '<span class="w-3.5 h-3.5 rounded-full border border-gray-300 inline-block flex-shrink-0 shadow-xs" style="background-color: ' + escapeHtml(v.fill) + '"></span>' +
+              '<span class="font-mono text-xs uppercase text-gray-700">' + escapeHtml(v.fill) + '</span>' +
+            '</div>' +
+          '</div>';
+
+        // Event listener: อัปเดตชื่อตัวแปรแบบเรียลไทม์
+        const nameInput = card.querySelector('.v-name-input');
+        nameInput.addEventListener('input', function (e) {
+          const val = e.target.value;
+          v.text = val;
+          v.column = val;
+          const fabricObj = canvas ? canvas.getObjects().find(function (o) { return o.varId === v.id; }) : null;
+          if (fabricObj) {
+            fabricObj.set('text', val || ' ');
+            canvas.renderAll();
+          }
+        });
+
+        // Event listener: ปุ่มลบตัวแปร
+        const delBtn = card.querySelector('.delete-var-btn');
+        delBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const fabricObj = canvas ? canvas.getObjects().find(function (o) { return o.varId === v.id; }) : null;
+          if (fabricObj) {
+            canvas.remove(fabricObj);
+            canvas.renderAll();
+          } else {
+            variables = variables.filter(function (x) { return x.id !== v.id; });
+            updateVariableMappingUI();
+          }
+        });
+
+        card.addEventListener('mouseenter', function () {
+          const obj = canvas ? canvas.getObjects().find(function (o) { return o.varId === v.id; }) : null;
+          if (obj && canvas.getActiveObject() !== obj) {
+            obj.set('opacity', 0.6);
+            canvas.renderAll();
+          }
+        });
+        card.addEventListener('mouseleave', function () {
+          const obj = canvas ? canvas.getObjects().find(function (o) { return o.varId === v.id; }) : null;
+          if (obj) { obj.set('opacity', 1); canvas.renderAll(); }
+        });
+
+        card.addEventListener('click', function (e) {
+          if (e.target.closest('input, button')) return;
+          const obj = canvas ? canvas.getObjects().find(function (o) { return o.varId === v.id; }) : null;
+          if (obj) {
+            canvas.setActiveObject(obj);
+            canvas.renderAll();
+          }
+        });
+
+        mappingList.appendChild(card);
+      });
+    }
+
+    addTextBtn.addEventListener('click', function () {
+      if (!canvas) return;
+
+      const id = varIdCounter++;
+      const varName = 'ตัวแปร' + id;
+      const newVar = {
+        id: id,
+        text: varName,
+        column: varName,
+        fontFamily: 'Anuphan',
+        fontSize: 24,
+        fill: '#FFFFFF',
+        left: Math.round(canvas.width / 2 - 50),
+        top: Math.round(canvas.height / 2 - 20),
+        angle: 0
+      };
+      variables.push(newVar);
+
+      const textObj = new fabric.IText(newVar.text, {
+        left: newVar.left, top: newVar.top,
+        fontFamily: newVar.fontFamily, fill: newVar.fill, fontSize: newVar.fontSize,
+        fontWeight: 'bold',
+        transparentCorners: false,
+        cornerColor: '#F59E0B', cornerSize: 8, borderColor: '#F59E0B', padding: 5
+      });
+      textObj.varId = id;
+      canvas.add(textObj);
+      canvas.setActiveObject(textObj);
+      canvas.renderAll();
+
+      updateVariableMappingUI();
+      updateTextPropertiesPanel(textObj);
+      textPropertiesPanel.classList.remove('hidden');
+    });
+
+    deleteTextBtn.addEventListener('click', function () {
+      if (!canvas) return;
+      const activeObjects = canvas.getActiveObjects();
+      if (!activeObjects.length) return;
+
+      activeObjects.forEach(function (obj) {
+        if (obj.type === 'i-text' || obj.type === 'text') {
+          const v = getVariableByFabricObj(obj);
+          if (v) variables = variables.filter(function (x) { return x.id !== v.id; });
+          canvas.remove(obj);
+        }
+      });
+      canvas.discardActiveObject();
+      canvas.renderAll();
+      updateVariableMappingUI();
+      textPropertiesPanel.classList.add('hidden');
+    });
+
+    document.addEventListener('keydown', function (e) {
+      const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT';
+      if (isInput) return;
+      if (e.key !== 'Delete' && e.key !== 'Backspace') return;
+      if (stepEditor.classList.contains('hidden') || !canvas) return;
+
+      const activeObjects = canvas.getActiveObjects();
+      if (!activeObjects.length) return;
+      if (activeObjects[0].isEditing) return;
+
+      e.preventDefault();
+      activeObjects.forEach(function (obj) {
+        if (obj.type === 'i-text' || obj.type === 'text') {
+          const v = getVariableByFabricObj(obj);
+          if (v) variables = variables.filter(function (x) { return x.id !== v.id; });
+          canvas.remove(obj);
+        }
+      });
+      canvas.discardActiveObject();
+      canvas.renderAll();
+      updateVariableMappingUI();
+      textPropertiesPanel.classList.add('hidden');
+    });
+
+    generatePdfBtn.addEventListener('click', function () {
+      if (!canvas || variables.length === 0) {
+        showToast('กรุณาเพิ่มตัวแปรข้อความก่อนสร้างเอกสาร', 'warning');
+        return;
+      }
+      showToast('ระบบสร้าง PDF กำลังพัฒนา', 'info', 4000);
+    });
+  </script>
+
+</body>
+</html>
