@@ -16,30 +16,22 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* สีปุ่มสำเร็จรูป */
     .color-swatch {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid transparent;
-      transition: all 0.15s;
-      flex-shrink: 0;
+      width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+      border: 2px solid transparent; transition: all 0.15s; flex-shrink: 0;
     }
-    .color-swatch:hover {
-      transform: scale(1.08);
-      border-color: #f97316;
-    }
-    .color-swatch.active {
-      border-color: #f97316;
-      box-shadow: 0 0 0 2px #fff, 0 0 0 4px #f97316;
+    .color-swatch:hover { transform: scale(1.08); border-color: #f97316; }
+    .color-swatch.active { border-color: #f97316; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #f97316; }
+
+    /* key-value row */
+    .kv-row input {
+      min-width: 0;
     }
   </style>
 </head>
 <body class="bg-[#f0ebd5] min-h-screen flex flex-col justify-between text-gray-800">
 
   <div id="app" class="w-full">
-    <!-- Header -->
     <header class="w-full bg-gradient-to-r from-orange-700 via-orange-500 to-orange-300 text-white shadow-lg">
       <div class="max-w-4xl mx-auto px-4 py-4 sm:px-6 sm:py-5 md:px-8 md:py-6 text-left md:text-center">
         <h1 class="font-trirong text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-1 sm:mb-2">PDFburning</h1>
@@ -49,7 +41,6 @@
       </div>
     </header>
 
-    <!-- Step 1: ปุ่มเริ่มทำงาน -->
     <div id="step-start" class="flex flex-col items-center justify-center mt-20 px-4">
       <button id="start-btn" type="button" class="px-10 py-3.5 bg-gradient-to-b from-yellow-500 via-orange-400 to-orange-600 text-white font-anuphan font-semibold text-lg rounded-xl shadow-md transition-all duration-150 ease-in-out hover:brightness-105 active:scale-95 outline-none hover:shadow-lg flex items-center gap-2">
         <span>เริ่มทำงาน</span>
@@ -57,7 +48,6 @@
       </button>
     </div>
 
-    <!-- Step 2: ส่วนอัพโหลดรูปและข้อมูล -->
     <div id="step-upload" class="hidden max-w-4xl mx-auto px-4 mt-10">
       <div class="text-center mb-8">
         <h2 class="font-trirong text-2xl sm:text-3xl font-bold text-orange-800 mb-1">เตรียมข้อมูลเอกสาร</h2>
@@ -70,7 +60,6 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- การ์ดที่ 1: อัพโหลดแม่แบบรูปภาพ -->
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-200/80 hover:border-orange-300 transition flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-3">
@@ -102,7 +91,6 @@
           <input type="file" id="image-upload" accept="image/*" class="hidden">
         </div>
 
-        <!-- การ์ดที่ 2: อัพโหลดไฟล์ข้อมูล -->
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-200/80 hover:border-orange-300 transition flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-3">
@@ -150,10 +138,8 @@
       </div>
     </div>
 
-    <!-- Step 3: Canvas Editor + Variable Mapping + Text Properties -->
     <div id="step-editor" class="hidden max-w-6xl mx-auto px-4 mt-8 flex flex-col items-center">
       
-      <!-- Top Bar -->
       <div class="w-full bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div class="flex items-center gap-3 flex-wrap">
           <span class="font-trirong font-bold text-gray-800 text-lg">จัดการเลย์เอาต์ตัวแปร</span>
@@ -170,7 +156,6 @@
         </div>
       </div>
       
-      <!-- Toolbar -->
       <div class="w-full flex items-center justify-between mb-3 bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
         <div class="flex gap-2 flex-wrap">
           <button id="add-text-btn" class="px-4 py-2 bg-gradient-to-r from-orange-100 to-orange-50 text-orange-800 hover:from-orange-200 hover:to-orange-100 rounded-md text-sm font-anuphan font-medium flex items-center gap-1.5 transition border border-orange-200">
@@ -181,34 +166,33 @@
             <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
             ลบที่เลือก
           </button>
+          <button id="dump-vars-btn" class="px-3 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-md text-xs font-anuphan font-medium flex items-center gap-1.5 transition border border-blue-200" title="พิมพ์ variables ลง Console">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+            ดู Object ใน Console
+          </button>
         </div>
         <div class="text-xs text-gray-500 font-anuphan hidden sm:block">
-          *ดับเบิลคลิกที่ข้อความบนรูปเพื่อเปลี่ยนชื่อตัวแปร
+          *ดับเบิลคลิกที่ข้อความบนรูปเพื่อเปลี่ยนชื่อ
         </div>
       </div>
 
-      <!-- Main Layout: Canvas + Mapping + Text Properties -->
       <div class="w-full flex flex-col lg:flex-row gap-5 items-start">
         
-        <!-- Left: Canvas -->
         <div class="w-full lg:w-2/3 flex justify-center border border-gray-300 shadow-sm rounded-xl overflow-hidden bg-white p-2">
           <canvas id="fabric-canvas"></canvas>
         </div>
 
-        <!-- Right: Mapping + Text Properties -->
         <div class="w-full lg:w-1/3 bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col h-full min-h-[400px]">
           
-          <!-- Mapping Header -->
           <div class="border-b border-gray-100 pb-3 mb-3">
             <h3 class="font-trirong font-bold text-lg text-gray-800 flex items-center gap-2">
               <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-              จับคู่ตัวแปร
+              ตัวแปร (Object)
             </h3>
-            <p class="text-xs text-gray-500 font-anuphan mt-1">กำหนดว่าตัวแปรบนภาพ จะดึงข้อมูลจากคอลัมน์ไหน</p>
+            <p class="text-xs text-gray-500 font-anuphan mt-1">แต่ละตัวแปรเก็บเป็น object มีข้อมูล key-value</p>
           </div>
           
-          <!-- Variable Mapping List -->
-          <div id="variable-mapping-list" class="flex flex-col gap-3 font-anuphan overflow-y-auto no-scrollbar flex-grow max-h-[260px]">
+          <div id="variable-mapping-list" class="flex flex-col gap-3 font-anuphan overflow-y-auto no-scrollbar flex-grow max-h-[420px]">
             <div class="flex flex-col items-center justify-center text-center py-10 px-4 h-full border-2 border-dashed border-gray-100 rounded-lg bg-gray-50/50">
               <svg class="w-10 h-10 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
               <p class="text-sm text-gray-500 font-medium">ยังไม่มีตัวแปรบนเอกสาร</p>
@@ -216,7 +200,6 @@
             </div>
           </div>
 
-          <!-- ==== Text Properties Panel (NEW) ==== -->
           <div id="text-properties-panel" class="hidden mt-4 pt-4 border-t border-gray-200">
             <div class="flex items-center justify-between mb-3">
               <h4 class="font-trirong font-bold text-base text-gray-800 flex items-center gap-1.5">
@@ -226,27 +209,25 @@
               <span id="selected-text-name" class="text-xs font-medium text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full truncate max-w-[140px]"></span>
             </div>
 
-            <!-- สี -->
             <div class="mb-3">
               <label class="text-xs font-medium text-gray-600 block mb-1.5">สีข้อความ</label>
               <div class="flex items-center gap-2 flex-wrap">
                 <input type="color" id="text-color-picker" value="#FFFFFF" class="w-8 h-8 p-0 border-0 rounded-full cursor-pointer bg-transparent">
                 <div class="flex gap-1.5 flex-wrap">
-                  <button class="color-swatch active" style="background:#FFFFFF" data-color="#FFFFFF" title="ขาว"></button>
-                  <button class="color-swatch" style="background:#000000" data-color="#000000" title="ดำ"></button>
-                  <button class="color-swatch" style="background:#EF4444" data-color="#EF4444" title="แดง"></button>
-                  <button class="color-swatch" style="background:#3B82F6" data-color="#3B82F6" title="น้ำเงิน"></button>
-                  <button class="color-swatch" style="background:#22C55E" data-color="#22C55E" title="เขียว"></button>
-                  <button class="color-swatch" style="background:#F97316" data-color="#F97316" title="ส้ม"></button>
-                  <button class="color-swatch" style="background:#EAB308" data-color="#EAB308" title="เหลือง"></button>
-                  <button class="color-swatch" style="background:#8B5CF6" data-color="#8B5CF6" title="ม่วง"></button>
-                  <button class="color-swatch" style="background:#EC4899" data-color="#EC4899" title="ชมพู"></button>
-                  <button class="color-swatch" style="background:#6B7280" data-color="#6B7280" title="เทา"></button>
+                  <button class="color-swatch active" style="background:#FFFFFF" data-color="#FFFFFF"></button>
+                  <button class="color-swatch" style="background:#000000" data-color="#000000"></button>
+                  <button class="color-swatch" style="background:#EF4444" data-color="#EF4444"></button>
+                  <button class="color-swatch" style="background:#3B82F6" data-color="#3B82F6"></button>
+                  <button class="color-swatch" style="background:#22C55E" data-color="#22C55E"></button>
+                  <button class="color-swatch" style="background:#F97316" data-color="#F97316"></button>
+                  <button class="color-swatch" style="background:#EAB308" data-color="#EAB308"></button>
+                  <button class="color-swatch" style="background:#8B5CF6" data-color="#8B5CF6"></button>
+                  <button class="color-swatch" style="background:#EC4899" data-color="#EC4899"></button>
+                  <button class="color-swatch" style="background:#6B7280" data-color="#6B7280"></button>
                 </div>
               </div>
             </div>
 
-            <!-- ฟอนต์ -->
             <div class="mb-3">
               <label class="text-xs font-medium text-gray-600 block mb-1.5">ฟอนต์</label>
               <select id="text-font-select" class="w-full text-sm px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 shadow-sm font-anuphan">
@@ -263,38 +244,26 @@
               </select>
             </div>
 
-            <!-- ขนาด -->
             <div class="mb-3">
               <label class="text-xs font-medium text-gray-600 block mb-1.5">ขนาดตัวอักษร</label>
               <div class="flex items-center gap-2">
                 <button id="font-size-down" class="w-8 h-8 flex items-center justify-center rounded-md border border-gray-300 bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold text-lg transition">−</button>
                 <select id="text-size-select" class="w-full text-sm px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 shadow-sm font-anuphan">
-                  <option value="16">16</option>
-                  <option value="20">20</option>
-                  <option value="24" selected>24</option>
-                  <option value="28">28</option>
-                  <option value="32">32</option>
-                  <option value="36">36</option>
-                  <option value="40">40</option>
-                  <option value="48">48</option>
-                  <option value="56">56</option>
-                  <option value="64">64</option>
-                  <option value="72">72</option>
-                  <option value="80">80</option>
+                  <option value="16">16</option><option value="20">20</option><option value="24" selected>24</option>
+                  <option value="28">28</option><option value="32">32</option><option value="36">36</option>
+                  <option value="40">40</option><option value="48">48</option><option value="56">56</option>
+                  <option value="64">64</option><option value="72">72</option><option value="80">80</option>
                 </select>
                 <button id="font-size-up" class="w-8 h-8 flex items-center justify-center rounded-md border border-gray-300 bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold text-lg transition">+</button>
               </div>
             </div>
 
-            <!-- ปุ่มใช้กับทั้งหมด -->
             <button id="apply-to-all-btn" class="w-full mt-1 py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 font-anuphan font-medium text-sm rounded-lg border border-orange-200 transition flex items-center justify-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
               ใช้การตั้งค่ากับข้อความทั้งหมด
             </button>
           </div>
-          <!-- ==== End Text Properties Panel ==== -->
 
-          <!-- Generate Button -->
           <div class="mt-4 pt-4 border-t border-gray-100">
             <button class="w-full py-3 bg-gray-800 hover:bg-gray-900 text-white font-anuphan font-medium text-sm rounded-lg transition shadow-sm flex justify-center items-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
@@ -306,7 +275,7 @@
       </div>
     </div>
   </div>
-    <!-- Footer -->
+  
   <footer class="mt-20 border-t border-orange-200/90 bg-[#F9F6F0]">
     <div class="max-w-4xl mx-auto px-6 py-8">
       <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -315,11 +284,7 @@
           <p class="font-anuphan mt-1 text-xs text-gray-500">สร้างเอกสารหลายใบจากข้อมูลตารางได้ง่ายขึ้น</p>
         </div>
         <div class="flex flex-wrap gap-x-4 font-anuphan text-xs text-gray-500">
-          <span>Canvas Editor</span>
-          <span>•</span>
-          <span>Data Mapping</span>
-          <span>•</span>
-          <span>PDF Generator</span>
+          <span>Canvas Editor</span><span>•</span><span>Data Mapping</span><span>•</span><span>PDF Generator</span>
         </div>
       </div>
       <div class="mt-6 border-t border-orange-100 pt-4 text-center">
@@ -363,9 +328,9 @@
 
     const addTextBtn = document.getElementById('add-text-btn');
     const deleteTextBtn = document.getElementById('delete-text-btn');
+    const dumpVarsBtn = document.getElementById('dump-vars-btn');
     const mappingList = document.getElementById('variable-mapping-list');
 
-    // Text Properties Panel
     const textPropertiesPanel = document.getElementById('text-properties-panel');
     const textColorPicker = document.getElementById('text-color-picker');
     const textFontSelect = document.getElementById('text-font-select');
@@ -383,11 +348,36 @@
     let selectedImageFile = null;
     let selectedImageDataUrl = null;
     let selectedDataFile = null;
-    let varCounter = 1;
-    let isUpdatingFromCanvas = false; // ป้องกันการวนลูป
-  
+    let isUpdatingFromCanvas = false;
+
+    // ★★★ หัวใจหลัก — array ของ object ตัวแปร ★★★
+    // โครงสร้างแต่ละ object:
+    // {
+    //   id: 1,
+    //   text: "ชื่อนักเรียน",         ← ชื่อที่แสดงบน canvas
+    //   column: "รายชื่อ",           ← ชื่อคอลัมน์ใน Excel/CSV ที่จะดึงข้อมูล
+    //   data: { "ชื่อนักเรียน": "รายชื่อ", "ชั้น": "ลำดับชั้น" },  ← key-value จริง
+    //   fontFamily, fontSize, fill, left, top, angle
+    // }
+    let variables = [];
+    let varIdCounter = 1;
+
     // ==========================================
-    // 3. Step Navigation & Upload
+    // 3. Helpers
+    // ==========================================
+    function getVariableById(id) {
+      return variables.find(v => v.id === id);
+    }
+    function getVariableByFabricObj(obj) {
+      if (!obj || obj.varId == null) return null;
+      return getVariableById(obj.varId);
+    }
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
+
+    // ==========================================
+    // 4. Step Navigation & Upload
     // ==========================================
     startBtn.addEventListener('click', () => {
       stepStart.classList.add('hidden');
@@ -427,7 +417,6 @@
       filePreviewContainer.classList.remove('hidden');
       fileStatusBadge.classList.remove('hidden');
     });
-
     cancelBtn.addEventListener('click', () => {
       resetUploadData();
       stepUpload.classList.add('hidden');
@@ -454,11 +443,9 @@
     resetBtn.addEventListener('click', () => {
       stepEditor.classList.add('hidden');
       stepUpload.classList.remove('hidden');
-      // รีเซ็ต Canvas
-      if (canvas) {
-        canvas.clear();
-        canvas = null;
-      }
+      if (canvas) { canvas.clear(); canvas = null; }
+      variables = [];
+      varIdCounter = 1;
       textPropertiesPanel.classList.add('hidden');
     });
 
@@ -478,7 +465,7 @@
     }
 
     // ==========================================
-    // 4. Fabric Canvas
+    // 5. Fabric Canvas
     // ==========================================
     function renderFabricCanvas(imageUrl) {
       const imgObj = new Image();
@@ -497,117 +484,111 @@
         canvas.setDimensions({ width: canvasWidth, height: canvasHeight });
         const ImageClass = fabric.FabricImage || fabric.Image;
         const fabricImg = new ImageClass(imgObj, {
-          scaleX: scaleRatio,
-          scaleY: scaleRatio,
-          selectable: false,
-          evented: false
+          scaleX: scaleRatio, scaleY: scaleRatio,
+          selectable: false, evented: false
         });
 
         canvas.clear();
         canvas.add(fabricImg);
         canvas.renderAll();
-        varCounter = 1;
+
+        // สร้าง text object ทั้งหมดจาก variables ที่มีอยู่ (ถ้าโหลดซ้ำ)
+        variables.forEach(v => {
+          const textObj = new fabric.IText(v.text || 'ตัวแปร', {
+            left: v.left, top: v.top, angle: v.angle || 0,
+            fontFamily: v.fontFamily, fontSize: v.fontSize, fill: v.fill,
+            fontWeight: 'bold',
+            transparentCorners: false,
+            cornerColor: '#F59E0B', cornerSize: 8, borderColor: '#F59E0B', padding: 5
+          });
+          textObj.varId = v.id;
+          canvas.add(textObj);
+        });
+        canvas.renderAll();
+
         updateVariableMappingUI();
-        // ซ่อน panel ตอนโหลดภาพใหม่
         textPropertiesPanel.classList.add('hidden');
       };
     }
 
     // ==========================================
-    // 5. Canvas Events & Text Management
+    // 6. Canvas Events
     // ==========================================
     function setupCanvasEvents() {
-      canvas.on('text:changed', () => {
+      canvas.on('text:changed', (e) => {
+        const obj = e.target;
+        const v = getVariableByFabricObj(obj);
+        if (v) {
+          v.text = obj.text;
+          // อัปเดต data ที่ key ตรงกับชื่อเดิม? ไม่ทำ ปล่อยให้เป็นข้อมูลคนละส่วน
+        }
         updateVariableMappingUI();
-        // ถ้ามีการแก้ไขข้อความ ให้อัปเดตชื่อใน panel ด้วย
-        const active = canvas.getActiveObject();
-        if (active && (active.type === 'i-text' || active.type === 'text')) {
-          updateTextPropertiesPanel(active);
-        }
-      });
-      canvas.on('object:removed', () => {
-        updateVariableMappingUI();
-        const active = canvas.getActiveObject();
-        if (!active || !(active.type === 'i-text' || active.type === 'text')) {
-          textPropertiesPanel.classList.add('hidden');
-        }
+        updateTextPropertiesPanel(obj);
       });
 
-      // ==== Selection Events ====
-      canvas.on('selection:created', (e) => {
-        const obj = e.selected && e.selected[0];
-        if (obj && (obj.type === 'i-text' || obj.type === 'text')) {
-          updateTextPropertiesPanel(obj);
-          textPropertiesPanel.classList.remove('hidden');
-        } else {
-          textPropertiesPanel.classList.add('hidden');
-        }
-      });
-
-      canvas.on('selection:updated', (e) => {
-        const obj = e.selected && e.selected[0];
-        if (obj && (obj.type === 'i-text' || obj.type === 'text')) {
-          updateTextPropertiesPanel(obj);
-          textPropertiesPanel.classList.remove('hidden');
-        } else {
-          textPropertiesPanel.classList.add('hidden');
-        }
-      });
-
-      canvas.on('selection:cleared', () => {
-        textPropertiesPanel.classList.add('hidden');
-      });
-
-      // เมื่อมีการแก้ไข object (ย้าย, ปรับขนาด) ให้อัปเดต panel ถ้าเป็นข้อความ
       canvas.on('object:modified', (e) => {
         const obj = e.target;
-        if (obj && (obj.type === 'i-text' || obj.type === 'text')) {
-          // ถ้ากำลังเลือกอยู่ ให้อัปเดต panel
-          if (canvas.getActiveObject() === obj) {
-            updateTextPropertiesPanel(obj);
-          }
+        const v = getVariableByFabricObj(obj);
+        if (v && (obj.type === 'i-text' || obj.type === 'text')) {
+          v.left = obj.left;
+          v.top = obj.top;
+          v.angle = obj.angle || 0;
+          v.fontSize = obj.fontSize;
+          v.fontFamily = obj.fontFamily;
+          v.fill = obj.fill;
+        }
+        if (canvas.getActiveObject() === obj) updateTextPropertiesPanel(obj);
+      });
+
+      canvas.on('object:removed', (e) => {
+        const obj = e.target;
+        if (obj && obj.varId != null) {
+          variables = variables.filter(v => v.id !== obj.varId);
+          updateVariableMappingUI();
         }
       });
+
+      const handleSel = (e) => {
+        const obj = e.selected && e.selected[0];
+        if (obj && (obj.type === 'i-text' || obj.type === 'text')) {
+          updateTextPropertiesPanel(obj);
+          textPropertiesPanel.classList.remove('hidden');
+        } else {
+          textPropertiesPanel.classList.add('hidden');
+        }
+      };
+      canvas.on('selection:created', handleSel);
+      canvas.on('selection:updated', handleSel);
+      canvas.on('selection:cleared', () => textPropertiesPanel.classList.add('hidden'));
     }
-      // ==========================================
-    // 6. Text Properties Panel Logic
+
+    // ==========================================
+    // 7. Text Properties Panel Logic
     // ==========================================
     function updateTextPropertiesPanel(obj) {
       if (!obj) return;
       isUpdatingFromCanvas = true;
 
-      // อัปเดตชื่อตัวแปรที่เลือก
       selectedTextName.textContent = obj.text || '(ไม่มีชื่อ)';
       selectedTextName.title = obj.text || '';
 
-      // สี
       const color = obj.fill || '#FFFFFF';
       textColorPicker.value = color;
-      // อัปเดต active state ของปุ่มสี
       colorSwatches.forEach(sw => {
         sw.classList.toggle('active', sw.dataset.color === color);
       });
-
-      // ฟอนต์
+      
       const font = obj.fontFamily || 'Anuphan';
-      if ([...textFontSelect.options].some(opt => opt.value === font)) {
-        textFontSelect.value = font;
-      } else {
-        textFontSelect.value = 'Anuphan';
-      }
+      if ([...textFontSelect.options].some(opt => opt.value === font)) textFontSelect.value = font;
+      else textFontSelect.value = 'Anuphan';
 
-      // ขนาด
       const size = obj.fontSize || 24;
-      if ([...textSizeSelect.options].some(opt => parseInt(opt.value) === size)) {
-        textSizeSelect.value = size;
-      } else {
-        textSizeSelect.value = '24';
-      }
+      if ([...textSizeSelect.options].some(opt => parseInt(opt.value) === size)) textSizeSelect.value = size;
+      else textSizeSelect.value = '24';
 
       isUpdatingFromCanvas = false;
     }
 
-    // อัปเดต Object ที่เลือกจากค่าที่ตั้งใน Panel
     function updateSelectedObjectFromPanel() {
       if (isUpdatingFromCanvas) return;
       const active = canvas ? canvas.getActiveObject() : null;
@@ -617,28 +598,27 @@
       const font = textFontSelect.value;
       const size = parseInt(textSizeSelect.value) || 24;
 
-      active.set({
-        fill: color,
-        fontFamily: font,
-        fontSize: size
-      });
+      active.set({ fill: color, fontFamily: font, fontSize: size });
       canvas.renderAll();
-      
-      // อัปเดต active state ของปุ่มสี
+
+      // ★ sync ลง variable object
+      const v = getVariableByFabricObj(active);
+      if (v) {
+        v.fill = color;
+        v.fontFamily = font;
+        v.fontSize = size;
+      }
+
       colorSwatches.forEach(sw => {
         sw.classList.toggle('active', sw.dataset.color === color);
       });
-      
-      // อัปเดตชื่อใน panel (เผื่อมีการเปลี่ยนข้อความจากที่อื่น)
       selectedTextName.textContent = active.text || '(ไม่มีชื่อ)';
     }
 
-    // ---- Event Listeners for Panel ----
     textColorPicker.addEventListener('input', updateSelectedObjectFromPanel);
     textFontSelect.addEventListener('change', updateSelectedObjectFromPanel);
     textSizeSelect.addEventListener('change', updateSelectedObjectFromPanel);
 
-    // ปุ่มเพิ่ม/ลดขนาด
     fontSizeDown.addEventListener('click', () => {
       let val = parseInt(textSizeSelect.value) || 24;
       val = Math.max(8, val - 2);
@@ -652,7 +632,6 @@
       updateSelectedObjectFromPanel();
     });
 
-    // ปุ่มสีสำเร็จรูป
     colorSwatches.forEach(sw => {
       sw.addEventListener('click', () => {
         const color = sw.dataset.color;
@@ -661,14 +640,10 @@
       });
     });
 
-    // ==== Apply to All ====
     applyToAllBtn.addEventListener('click', () => {
       if (!canvas) return;
       const textObjects = canvas.getObjects().filter(obj => obj.type === 'i-text' || obj.type === 'text');
-      if (textObjects.length === 0) {
-        alert('ไม่มีข้อความบน Canvas');
-        return;
-      }
+      if (textObjects.length === 0) { alert('ไม่มีข้อความบน Canvas'); return; }
       if (!confirm('ต้องการนำการตั้งค่าสี ฟอนต์ และขนาดไปใช้กับข้อความทั้งหมดใช่หรือไม่?')) return;
 
       const color = textColorPicker.value;
@@ -677,25 +652,22 @@
 
       textObjects.forEach(obj => {
         obj.set({ fill: color, fontFamily: font, fontSize: size });
+        const v = getVariableByFabricObj(obj);
+        if (v) { v.fill = color; v.fontFamily = font; v.fontSize = size; }
       });
       canvas.renderAll();
-      
-      // อัปเดต panel ถ้ามีการเลือกอยู่
+
       const active = canvas.getActiveObject();
-      if (active && (active.type === 'i-text' || active.type === 'text')) {
-        updateTextPropertiesPanel(active);
-      }
+      if (active && (active.type === 'i-text' || active.type === 'text')) updateTextPropertiesPanel(active);
     });
 
     // ==========================================
-    // 7. Variable Mapping UI
+    // 8. Variable Mapping UI (key-value editor)
     // ==========================================
     function updateVariableMappingUI() {
-      if (!canvas) return;
-      const textObjects = canvas.getObjects().filter(obj => obj.type === 'i-text' || obj.type === 'text');
       mappingList.innerHTML = '';
 
-      if (textObjects.length === 0) {
+      if (variables.length === 0) {
         mappingList.innerHTML = `
           <div class="flex flex-col items-center justify-center text-center py-10 px-4 h-full border-2 border-dashed border-gray-100 rounded-lg bg-gray-50/50">
             <svg class="w-10 h-10 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
@@ -705,58 +677,164 @@
         `;
         return;
       }
-      textObjects.forEach((obj, index) => {
-        const varName = obj.text || `ตัวแปร${index + 1}`;
+
+      variables.forEach((v, index) => {
         const card = document.createElement('div');
         card.className = 'bg-gray-50 border border-gray-200 p-3 rounded-lg flex flex-col gap-2 hover:border-orange-300 transition-colors shadow-sm';
+
+        // สร้าง key-value rows
+        const kvRowsHtml = Object.entries(v.data || {}).map(([k, val]) => `
+          <div class="kv-row flex items-center gap-1">
+            <input type="text" class="kv-key flex-1 text-[12px] px-2 py-1.5 border border-gray-300 rounded focus:outline-none focus:border-orange-500 font-anuphan bg-white"
+                   value="${escapeHtml(k)}" placeholder="key" data-orig-key="${escapeHtml(k)}">
+            <span class="text-gray-400 text-xs">:</span>
+            <input type="text" class="kv-val flex-1 text-[12px] px-2 py-1.5 border border-gray-300 rounded focus:outline-none focus:border-orange-500 font-anuphan bg-white"
+                   value="${escapeHtml(val)}" placeholder="value">
+            <button class="kv-del w-6 h-6 flex items-center justify-center rounded text-red-400 hover:bg-red-50 hover:text-red-600 transition flex-shrink-0" title="ลบ">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+        `).join('');
+
         card.innerHTML = `
           <div class="flex items-center gap-2">
             <span class="flex-shrink-0 w-5 h-5 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold font-anuphan">${index + 1}</span>
-            <span class="text-sm font-semibold text-gray-800 truncate" title="${varName}">${varName}</span>
+            <span class="text-sm font-semibold text-gray-800 truncate flex-1" title="${escapeHtml(v.text)}">${escapeHtml(v.text)}</span>
+            <span class="text-[10px] font-mono text-gray-400 bg-white px-1.5 py-0.5 rounded border border-gray-200">id:${v.id}</span>
           </div>
+
           <div class="flex flex-col gap-1 mt-1">
-            <label class="text-[11px] text-gray-500 font-medium ml-1">ชื่อคอลัมน์ใน Excel/CSV</label>
-            <input type="text" placeholder="เช่น ชื่อ-นามสกุล, รางวัลที่ได้" class="text-sm px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 shadow-sm font-anuphan w-full">
+            <label class="text-[11px] text-gray-500 font-medium ml-1">ชื่อคอลัมน์ใน Excel/CSV (หลัก)</label>
+            <input type="text" class="v-column text-sm px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 shadow-sm font-anuphan w-full bg-white"
+                   value="${escapeHtml(v.column || '')}" placeholder="เช่น รายชื่อ, ลำดับชั้น">
+          </div>
+
+          <div class="flex flex-col gap-1.5 mt-1">
+            <div class="flex items-center justify-between ml-1">
+              <label class="text-[11px] text-gray-500 font-medium">ข้อมูล key-value</label>
+              <span class="text-[10px] text-gray-400 font-mono">${Object.keys(v.data || {}).length} คู่</span>
+            </div>
+            <div class="kv-list flex flex-col gap-1">${kvRowsHtml || '<p class="text-[11px] text-gray-400 italic text-center py-1">— ยังไม่มีข้อมูล —</p>'}</div>
+            <button class="kv-add w-full mt-1 py-1 text-[11px] text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded font-anuphan font-medium transition flex items-center justify-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              เพิ่มข้อมูล
+            </button>
           </div>
         `;
+
+        // ==== Event: column ====
+        card.querySelector('.v-column').addEventListener('input', (e) => {
+          v.column = e.target.value;
+        });
+
+        // ==== Event: แก้ key ====
+        card.querySelectorAll('.kv-key').forEach(inp => {
+          inp.addEventListener('input', (e) => {
+            const origKey = e.target.dataset.origKey;
+            const newKey = e.target.value;
+            if (newKey === origKey) return;
+            const val = v.data[origKey];
+            delete v.data[origKey];
+            v.data[newKey] = val;
+            e.target.dataset.origKey = newKey;
+          });
+        });
+
+        // ==== Event: แก้ value ====
+        card.querySelectorAll('.kv-val').forEach(inp => {
+          inp.addEventListener('input', () => {
+            // หา key ปัจจุบันจาก row
+            const row = inp.closest('.kv-row');
+            const k = row.querySelector('.kv-key').dataset.origKey;
+            v.data[k] = inp.value;
+          });
+        });
+
+        // ==== Event: ลบ row ====
+        card.querySelectorAll('.kv-del').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const row = btn.closest('.kv-row');
+            const k = row.querySelector('.kv-key').dataset.origKey;
+            delete v.data[k];
+            updateVariableMappingUI();
+          });
+        });
+
+        // ==== Event: เพิ่ม row ====
+        card.querySelector('.kv-add').addEventListener('click', () => {
+          // เปิดชื่อ key ใหม่ไม่ให้ซ้ำ
+          let newKey = 'key' + (Object.keys(v.data).length + 1);
+          while (v.data[newKey] !== undefined) newKey = '_' + newKey;
+          v.data[newKey] = '';
+          updateVariableMappingUI();
+        });
+
+        // ==== Hover highlight ====
         card.addEventListener('mouseenter', () => {
-          if (canvas.getActiveObject() !== obj) {
+          const obj = canvas.getObjects().find(o => o.varId === v.id);
+          if (obj && canvas.getActiveObject() !== obj) {
             obj.set('opacity', 0.6);
             canvas.renderAll();
           }
         });
         card.addEventListener('mouseleave', () => {
-          obj.set('opacity', 1);
-          canvas.renderAll();
+          const obj = canvas.getObjects().find(o => o.varId === v.id);
+          if (obj) { obj.set('opacity', 1); canvas.renderAll(); }
         });
+
+        // ==== คลิกการ์ด (ไม่ใช่ input) → เลือกบน canvas ====
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('input, button')) return;
+          const obj = canvas.getObjects().find(o => o.varId === v.id);
+          if (obj) {
+            canvas.setActiveObject(obj);
+            canvas.renderAll();
+          }
+        });
+
         mappingList.appendChild(card);
       });
     }
 
     // ==========================================
-    // 8. Add / Delete Text
+    // 9. Add / Delete Text
     // ==========================================
     addTextBtn.addEventListener('click', () => {
       if (!canvas) return;
-      const textObj = new fabric.IText(`ตัวแปร${varCounter}`, {
+
+      const id = varIdCounter++;
+
+      // ★★★ สร้าง VARIABLE OBJECT ใหม่ ★★★
+      const newVar = {
+        id: id,
+        text: `ตัวแปร${id}`,
+        column: '',
+        data: {},                       // ← ใส่ key-value ทีหลังได้
+        fontFamily: 'Anuphan',
+        fontSize: 24,
+        fill: '#FFFFFF',
         left: canvas.width / 2 - 50,
         top: canvas.height / 2 - 20,
-        fontFamily: 'Anuphan',
-        fill: '#FFFFFF',
-        fontSize: 24,
+        angle: 0
+      };
+      variables.push(newVar);
+
+      console.log(`✅ สร้างตัวแปรใหม่ → variables[${variables.length - 1}] =`, newVar);
+
+      // สร้าง fabric object ที่ผูกกับ variable
+      const textObj = new fabric.IText(newVar.text, {
+        left: newVar.left, top: newVar.top,
+        fontFamily: newVar.fontFamily, fill: newVar.fill, fontSize: newVar.fontSize,
         fontWeight: 'bold',
         transparentCorners: false,
-        cornerColor: '#F59E0B',
-        cornerSize: 8,
-        borderColor: '#F59E0B',
-        padding: 5
+        cornerColor: '#F59E0B', cornerSize: 8, borderColor: '#F59E0B', padding: 5
       });
+      textObj.varId = id;
       canvas.add(textObj);
       canvas.setActiveObject(textObj);
       canvas.renderAll();
-      varCounter++;
+
       updateVariableMappingUI();
-      // แสดง panel ทันที
       updateTextPropertiesPanel(textObj);
       textPropertiesPanel.classList.remove('hidden');
     });
@@ -766,7 +844,11 @@
       const activeObjects = canvas.getActiveObjects();
       if (activeObjects.length) {
         activeObjects.forEach((obj) => {
-          if (obj.type === 'i-text' || obj.type === 'text') canvas.remove(obj);
+          if (obj.type === 'i-text' || obj.type === 'text') {
+            const v = getVariableByFabricObj(obj);
+            if (v) variables = variables.filter(x => x.id !== v.id);
+            canvas.remove(obj);
+          }
         });
         canvas.discardActiveObject();
         canvas.renderAll();
@@ -775,7 +857,6 @@
       }
     });
 
-    // Keyboard: Delete / Backspace
     document.addEventListener('keydown', (e) => {
       const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT';
       if (!isInput && (e.key === 'Delete' || e.key === 'Backspace') && !stepEditor.classList.contains('hidden')) {
@@ -785,7 +866,11 @@
             e.preventDefault();
             if (activeObjects[0].isEditing) return;
             activeObjects.forEach(obj => {
-              if (obj.type === 'i-text' || obj.type === 'text') canvas.remove(obj);
+              if (obj.type === 'i-text' || obj.type === 'text') {
+                const v = getVariableByFabricObj(obj);
+                if (v) variables = variables.filter(x => x.id !== v.id);
+                canvas.remove(obj);
+              }
             });
             canvas.discardActiveObject();
             canvas.renderAll();
@@ -795,15 +880,18 @@
         }
       }
     });
-  
-    // ==========================================
-    // 9. เมื่อเลือกข้อความด้วยการคลิกที่ Mapping ให้เลือกบน Canvas
-    // ==========================================
-    // (เพิ่มเติม: เราได้เพิ่ม mouseenter/mouseleave ใน mapping แล้ว)
-    // นอกจากนี้ยังสามารถคลิกที่ชื่อใน mapping เพื่อเลือกบน Canvas ได้
-    // แต่ขอไม่เพิ่มเพื่อความเรียบง่าย
 
-    
+    // ★ ปุ่มดู variables ใน console
+    dumpVarsBtn.addEventListener('click', () => {
+      console.clear();
+      console.log('%c📦 variables =', 'color:#f97316;font-weight:bold;font-size:14px', variables);
+      console.log('%c👉 ลองพิมพ์ใน console:', 'color:#16a34a;font-weight:bold');
+      console.log('   variables[0]              → ดูตัวแปรตัวแรก');
+      console.log('   variables[0].data         → ดู data object');
+      console.log('   variables[0].data["ชื่อนักเรียน"]  → ดึงค่าจริง');
+      alert('ดูผลลัพธ์ได้ที่ Console (กด F12)');
+    });
+
   </script>
 
 </body>
