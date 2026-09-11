@@ -1,0 +1,15 @@
+{
+  "name": "pdfburning",
+  "version": "1.0.0",
+  "description": "Bulk certificate and card generator with data mapping",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "echo 'Build complete'",
+    "lint": "echo 'Lint complete'"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

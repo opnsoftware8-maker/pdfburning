@@ -1,0 +1,8 @@
+{
+  "name": "PDFburning",
+  "description": "เว็บไซต์สำหรับการช่วยลดภาระงานการกรอกข้อมูลสร้าง การ์ด, เกียรติบัตรหรือสิ่งใดที่คล้ายกัน ผ่านการเอาข้อมูลจาก ตาราง, PDF มากรอก",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

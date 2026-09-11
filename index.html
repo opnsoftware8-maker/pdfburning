@@ -4,20 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>PDFburning</title>
+  <meta name="description" content="เว็บไซต์สำหรับการช่วยลดภาระงานการกรอกข้อมูลสร้าง การ์ด, เกียรติบัตรหรือสิ่งใดที่คล้ายกัน ผ่านการเอาข้อมูลจาก ตาราง, PDF มากรอก">
+  <meta property="og:title" content="PDFburning">
+  <meta property="og:description" content="เว็บไซต์สำหรับการช่วยลดภาระงานการกรอกข้อมูลสร้าง การ์ด, เกียรติบัตรหรือสิ่งใดที่คล้ายกัน ผ่านการเอาข้อมูลจาก ตาราง, PDF มากรอก">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&family=Trirong:wght@700;800&family=Sarabun:wght@400;600;700&family=Prompt:wght@400;600;700&family=Kanit:wght@400;600;700&family=Noto+Sans+Thai:wght@400;600;700&family=IBM+Plex+Sans+Thai:wght@400;600;700&family=Mitr:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Anuphan:wght@400;500;600;700&family=Charm:wght@400;700&family=Cinzel:wght@500;700&family=Great+Vibes&family=IBM+Plex+Sans+Thai:wght@400;600;700&family=Inter:wght@400;600;700&family=Itim&family=Kalam:wght@400;700&family=Kanit:wght@400;600;700&family=Krub:wght@400;600;700&family=Lora:ital,wght@0,500;0,700;1,400&family=Mali:wght@400;600;700&family=Mitr:wght@400;600;700&family=Montserrat:wght@400;600;700&family=Noto+Sans+Thai:wght@400;600;700&family=Noto+Serif+Thai:wght@400;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Pridi:wght@400;600;700&family=Prompt:wght@400;600;700&family=Roboto:wght@400;500;700&family=Sarabun:wght@400;600;700&family=Taviraj:wght@400;600;700&family=Trirong:wght@600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/fabric@6/dist/index.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@latest/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
     .font-trirong { font-family: 'Trirong', serif; }
     .font-anuphan { font-family: 'Anuphan', sans-serif; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    .color-swatch { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; flex-shrink: 0; }
-    .color-swatch:hover { transform: scale(1.08); border-color: #f97316; }
-    .color-swatch.active { border-color: #f97316; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #f97316; }
     #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
     .toast { pointer-events: auto; min-width: 260px; max-width: 380px; padding: 14px 18px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); font-family: 'Anuphan', sans-serif; font-size: 14px; font-weight: 500; display: flex; align-items: flex-start; gap: 10px; animation: toastIn 0.3s ease; color: #fff; }
     .toast.success { background: linear-gradient(135deg, #10b981, #059669); }
@@ -89,6 +91,12 @@
                 <span class="font-anuphan text-[11px] text-orange-600 underline mt-1">คลิกเพื่อเปลี่ยนรูปภาพ</span>
               </div>
             </div>
+            <div class="mt-3 flex items-center justify-center">
+              <button type="button" id="use-sample-img-btn" class="text-xs text-orange-700 hover:text-orange-900 bg-orange-50 hover:bg-orange-100 border border-orange-200 px-3 py-1.5 rounded-lg font-anuphan transition flex items-center gap-1.5 shadow-2xs">
+                <svg class="w-3.5 h-3.5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <span>ใช้แม่แบบเกียรติบัตรตัวอย่าง</span>
+              </button>
+            </div>
           </div>
           <input type="file" id="image-upload" accept="image/*" class="hidden">
         </div>
@@ -104,7 +112,7 @@
               </span>
             </div>
             <h3 class="font-trirong text-xl font-bold text-orange-800 mb-1">2. อัพโหลดไฟล์ข้อมูล</h3>
-            <p class="font-anuphan text-xs sm:text-sm text-gray-500 mb-5">ไฟล์ข้อมูลตารางหรือเอกสารที่จะนำมากรอกลงในการ์ด</p>
+            <p class="font-anuphan text-xs sm:text-sm text-gray-500 mb-5">ไฟล์ตารางหรือเอกสารที่จะนำมากรอกลงในการ์ด</p>
 
             <div id="file-dropzone" class="border-2 border-dashed border-blue-200 rounded-xl p-5 text-center bg-blue-50/30 hover:bg-blue-50/60 transition cursor-pointer flex flex-col items-center justify-center min-h-[160px]">
               <div id="file-placeholder" class="flex flex-col items-center">
@@ -112,7 +120,7 @@
                   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 </div>
                 <span class="font-anuphan text-sm font-semibold text-gray-700 mb-1">คลิกเพื่อเลือกไฟล์ข้อมูล</span>
-                <span class="font-anuphan text-xs text-gray-400">Excel (.xlsx), CSV</span>
+                <span class="font-anuphan text-xs text-gray-400">Excel (.xlsx), CSV, PDF, TXT</span>
               </div>
               <div id="file-preview-container" class="hidden w-full flex flex-col items-center py-2">
                 <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-2">
@@ -120,11 +128,23 @@
                 </div>
                 <p id="file-name" class="font-anuphan text-xs font-semibold text-gray-800 truncate max-w-full"></p>
                 <p id="file-size" class="font-anuphan text-[11px] text-gray-500"></p>
-                <span class="font-anuphan text-[11px] text-blue-600 underline mt-2">คลิกเพื่อเปลี่ยนไฟล์ข้อมูล</span>
+                <div class="flex items-center gap-2 mt-2">
+                  <button type="button" id="upload-view-data-btn" class="text-xs bg-white hover:bg-orange-50 text-orange-700 border border-orange-200 px-3 py-1 rounded-lg font-anuphan font-semibold flex items-center gap-1.5 shadow-2xs transition">
+                    <svg class="w-3.5 h-3.5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                    <span>เปิดดูไฟล์ข้อมูล</span>
+                  </button>
+                  <span class="font-anuphan text-[11px] text-blue-600 underline">เปลี่ยนไฟล์</span>
+                </div>
               </div>
             </div>
+            <div class="mt-3 flex items-center justify-center">
+              <button type="button" id="use-sample-data-btn" class="text-xs text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-lg font-anuphan transition flex items-center gap-1.5 shadow-2xs">
+                <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span>ใช้ข้อมูลตัวอย่าง (4 รายชื่อและรางวัล)</span>
+              </button>
+            </div>
           </div>
-          <input type="file" id="data-upload" accept=".xlsx,.xls,.csv" class="hidden">
+          <input type="file" id="data-upload" accept=".xlsx,.xls,.csv,.txt,.pdf" class="hidden">
         </div>
       </div>
 
@@ -143,12 +163,16 @@
     <div id="step-editor" class="hidden max-w-6xl mx-auto px-4 mt-8 flex flex-col items-center">
       
       <div class="w-full bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div class="flex items-center gap-3 flex-wrap">
+        <div class="flex items-center gap-2.5 flex-wrap">
           <span class="font-trirong font-bold text-gray-800 text-lg">จัดการเลย์เอาต์ตัวแปร</span>
           <div id="attached-file-tag" class="hidden text-xs bg-orange-100 text-orange-800 font-anuphan px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-orange-200">
             <svg class="w-3.5 h-3.5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
             <span id="attached-file-text">ไฟล์ข้อมูล: -</span>
           </div>
+          <button id="view-data-file-btn" type="button" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-900 font-anuphan px-3 py-1.5 rounded-lg flex items-center gap-1.5 border border-amber-300 transition shadow-2xs font-semibold">
+            <svg class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+            <span>เปิดดูไฟล์ข้อมูล</span>
+          </button>
         </div>
         <div class="flex items-center gap-2">
           <button id="reset-btn" class="px-3.5 py-1.5 text-xs text-orange-700 hover:bg-orange-50 rounded-lg border border-orange-200 font-anuphan font-medium transition flex items-center gap-1.5">
@@ -209,36 +233,61 @@
 
             <div class="mb-3">
               <label class="text-xs font-medium text-gray-600 block mb-1.5">สีข้อความ</label>
-              <div class="flex items-center gap-2 flex-wrap">
-                <input type="color" id="text-color-picker" value="#FFFFFF" class="w-8 h-8 p-0 border-0 rounded-full cursor-pointer bg-transparent">
-                <div class="flex gap-1.5 flex-wrap">
-                  <button class="color-swatch active" style="background:#FFFFFF" data-color="#FFFFFF"></button>
-                  <button class="color-swatch" style="background:#000000" data-color="#000000"></button>
-                  <button class="color-swatch" style="background:#EF4444" data-color="#EF4444"></button>
-                  <button class="color-swatch" style="background:#3B82F6" data-color="#3B82F6"></button>
-                  <button class="color-swatch" style="background:#22C55E" data-color="#22C55E"></button>
-                  <button class="color-swatch" style="background:#F97316" data-color="#F97316"></button>
-                  <button class="color-swatch" style="background:#EAB308" data-color="#EAB308"></button>
-                  <button class="color-swatch" style="background:#8B5CF6" data-color="#8B5CF6"></button>
-                  <button class="color-swatch" style="background:#EC4899" data-color="#EC4899"></button>
-                  <button class="color-swatch" style="background:#6B7280" data-color="#6B7280"></button>
+              <div class="flex items-center gap-2.5">
+                <input type="color" id="text-color-picker" value="#FFFFFF" class="w-10 h-10 p-1 border border-gray-300 rounded-lg cursor-pointer bg-white shadow-2xs">
+                <span id="text-color-hex" class="font-mono text-xs font-semibold text-gray-700 bg-gray-100 px-2.5 py-1.5 rounded-md border border-gray-200">#FFFFFF</span>
+                <!-- Quick Color Palette -->
+                <div class="flex items-center gap-1 ml-auto">
+                  <button type="button" class="w-6 h-6 rounded-full border-2 border-orange-400 bg-white shadow-xs hover:scale-110 transition flex items-center justify-center title-tooltip" title="สีขาว (ค่าเริ่มต้น)" onclick="document.getElementById('text-color-picker').value='#FFFFFF'; document.getElementById('text-color-picker').dispatchEvent(new Event('input'));">
+                    <span class="w-2 h-2 rounded-full bg-gray-300"></span>
+                  </button>
+                  <button type="button" class="w-6 h-6 rounded-full border border-gray-300 bg-amber-400 shadow-xs hover:scale-110 transition" title="สีทองอำพัน" onclick="document.getElementById('text-color-picker').value='#F59E0B'; document.getElementById('text-color-picker').dispatchEvent(new Event('input'));"></button>
+                  <button type="button" class="w-6 h-6 rounded-full border border-gray-300 bg-amber-900 shadow-xs hover:scale-110 transition" title="สีน้ำตาลทอง" onclick="document.getElementById('text-color-picker').value='#78350F'; document.getElementById('text-color-picker').dispatchEvent(new Event('input'));"></button>
+                  <button type="button" class="w-6 h-6 rounded-full border border-gray-300 bg-gray-900 shadow-xs hover:scale-110 transition" title="สีดำเข้ม" onclick="document.getElementById('text-color-picker').value='#111827'; document.getElementById('text-color-picker').dispatchEvent(new Event('input'));"></button>
+                  <button type="button" class="w-6 h-6 rounded-full border border-gray-300 bg-blue-900 shadow-xs hover:scale-110 transition" title="สีกรมท่าเข้ม" onclick="document.getElementById('text-color-picker').value='#1E3A8A'; document.getElementById('text-color-picker').dispatchEvent(new Event('input'));"></button>
                 </div>
               </div>
             </div>
 
             <div class="mb-3">
-              <label class="text-xs font-medium text-gray-600 block mb-1.5">ฟอนต์</label>
+              <label class="text-xs font-medium text-gray-600 block mb-1.5">ฟอนต์ (ไทย & อังกฤษ)</label>
               <select id="text-font-select" class="w-full text-sm px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 shadow-sm font-anuphan">
-                <option value="Anuphan">Anuphan</option>
-                <option value="Trirong">Trirong</option>
-                <option value="Sarabun">Sarabun</option>
-                <option value="Prompt">Prompt</option>
-                <option value="Kanit">Kanit</option>
-                <option value="Noto Sans Thai">Noto Sans Thai</option>
-                <option value="IBM Plex Sans Thai">IBM Plex Sans Thai</option>
-                <option value="Mitr">Mitr</option>
-                <option value="Arial">Arial</option>
-                <option value="Helvetica">Helvetica</option>
+                <optgroup label="🇹🇭 ฟอนต์ทางการ & เกียรติบัตร (Thai Formal / Serif)">
+                  <option value="Sarabun">Sarabun (สารบัญ - มาตรฐานราชการ)</option>
+                  <option value="Trirong">Trirong (ไตรรงค์ - หัวมีเชิง หรูหรา)</option>
+                  <option value="Noto Serif Thai">Noto Serif Thai (โนโตซีรีฟไทย - สากลประณีต)</option>
+                  <option value="Taviraj">Taviraj (ทวิราช - อ่อนช้อยทรงคุณค่า)</option>
+                  <option value="Pridi">Pridi (ปรีดี - โมเดิร์นมีเชิง)</option>
+                </optgroup>
+                <optgroup label="🇹🇭 ฟอนต์โมเดิร์น & คมชัด (Thai Sans-Serif)">
+                  <option value="Anuphan" selected>Anuphan (อนุพันธ์ - คมชัด ทันสมัย)</option>
+                  <option value="Prompt">Prompt (พร้อมท์ - ยอดนิยม สะอาดตา)</option>
+                  <option value="Kanit">Kanit (คณิต - ตัวหนา มีพลัง)</option>
+                  <option value="IBM Plex Sans Thai">IBM Plex Sans Thai (ไอบีเอ็ม - มาตรฐานสากล)</option>
+                  <option value="Noto Sans Thai">Noto Sans Thai (โนโตซานส์ไทย)</option>
+                  <option value="Mitr">Mitr (มิตร - มน เป็นมิตร)</option>
+                  <option value="Krub">Krub (ครับ - สมัยใหม่)</option>
+                </optgroup>
+                <optgroup label="🇹🇭 ฟอนต์ลายมือ & วิจิตร (Thai Handwriting & Decorative)">
+                  <option value="Charm">Charm (ชาร์ม - ตัวเขียนไทยประณีต)</option>
+                  <option value="Itim">Itim (ไอติม - น่ารัก สบายๆ)</option>
+                  <option value="Mali">Mali (มะลิ - ลายมือน่ารัก)</option>
+                </optgroup>
+                <optgroup label="🇬🇧 ฟอนต์ใบประกาศ & สากล (English Certificate & Formal)">
+                  <option value="Cinzel">Cinzel (คินเซล - สไตล์สลักหินโรมัน หรูหรา)</option>
+                  <option value="Playfair Display">Playfair Display (เพลย์แฟร์ - คลาสสิกยอดนิยม)</option>
+                  <option value="Lora">Lora (ลอรา - ประณีต นุ่มนวล)</option>
+                  <option value="Great Vibes">Great Vibes (เกรทไวบส์ - ลายเซ็นวิจิตร)</option>
+                  <option value="Alex Brush">Alex Brush (อเล็กซ์บรัช - ลายเซ็นสากล)</option>
+                </optgroup>
+                <optgroup label="🇬🇧 ฟอนต์สมัยใหม่ & สากล (English Modern Sans & Standard)">
+                  <option value="Montserrat">Montserrat (มองต์เซอร์รัต - สากลยอดนิยม)</option>
+                  <option value="Inter">Inter (อินเตอร์ - คมชัดสูง)</option>
+                  <option value="Roboto">Roboto (โรโบโต)</option>
+                  <option value="Kalam">Kalam (คาลาม - ลายมือสากล)</option>
+                  <option value="Arial">Arial (แอเรียล)</option>
+                  <option value="Helvetica">Helvetica (เฮลเวติกา)</option>
+                </optgroup>
               </select>
             </div>
 
@@ -262,6 +311,27 @@
             </button>
           </div>
 
+          <!-- Special AI Prompt Box for Gemini API -->
+          <div class="mt-4 pt-4 border-t border-gray-200">
+            <div class="flex items-center justify-between mb-1.5">
+              <label for="ai-custom-prompt" class="font-trirong font-bold text-sm text-gray-800 flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                คำสั่งพิเศษถึง Gemini AI (Prompt)
+              </label>
+              <span class="text-[10px] font-bold text-orange-700 bg-orange-100 border border-orange-200 px-2 py-0.5 rounded-full font-anuphan">ช่องพิเศษ</span>
+            </div>
+            <p class="text-[11px] text-gray-500 font-anuphan mb-2 leading-relaxed">
+              ระบุคำสั่งให้ AI ช่วยแปลงหรือจัดระเบียบข้อมูลเป็นพิเศษก่อนสร้าง PDF
+            </p>
+            <textarea id="ai-custom-prompt" rows="3" class="w-full text-xs p-2.5 border border-orange-200 bg-orange-50/40 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 font-anuphan text-gray-800 placeholder-gray-400 shadow-2xs resize-none" placeholder="เช่น แปลงตัวเลขเป็นเลขไทยทั้งหมด, จัดชื่อ-นามสกุลให้เรียบร้อย, แปลงวันที่เป็น พ.ศ. ๒๕๖๙, กรองเฉพาะผู้ได้รับรางวัล..."></textarea>
+            
+            <div class="flex flex-wrap gap-1 mt-2">
+              <button type="button" class="ai-prompt-chip px-2 py-0.5 rounded bg-gray-100 hover:bg-orange-100 hover:text-orange-900 text-[10px] text-gray-600 font-anuphan transition border border-gray-200 shadow-2xs" data-prompt="แปลงตัวเลขทั้งหมดให้เป็นเลขไทย เช่น 1 เป็น ๑">+ แปลงเลขไทย</button>
+              <button type="button" class="ai-prompt-chip px-2 py-0.5 rounded bg-gray-100 hover:bg-orange-100 hover:text-orange-900 text-[10px] text-gray-600 font-anuphan transition border border-gray-200 shadow-2xs" data-prompt="จัดรูปแบบชื่อและนามสกุลให้ถูกต้อง หากมีคำนำหน้าให้คงไว้และเว้นวรรค 1 เคาะ">+ จัดระเบียบชื่อ</button>
+              <button type="button" class="ai-prompt-chip px-2 py-0.5 rounded bg-gray-100 hover:bg-orange-100 hover:text-orange-900 text-[10px] text-gray-600 font-anuphan transition border border-gray-200 shadow-2xs" data-prompt="จัดรูปแบบวันที่เป็นแบบทางการภาษาไทย เช่น วันที่ ๑๕ กุมภาพันธ์ พ.ศ. ๒๕๖๙">+ รูปแบบวันที่ไทย</button>
+            </div>
+          </div>
+
           <div class="mt-4 pt-4 border-t border-gray-100">
             <button id="generate-pdf-btn" class="w-full py-3 bg-gray-800 hover:bg-gray-900 text-white font-anuphan font-medium text-sm rounded-lg transition shadow-sm flex justify-center items-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
@@ -270,6 +340,224 @@
           </div>
         </div>
 
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress / Generating Modal -->
+  <div id="progress-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-orange-100 flex flex-col items-center text-center">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-400 text-white flex items-center justify-center mb-4 shadow-lg shadow-orange-500/30 animate-pulse">
+        <svg class="w-8 h-8 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+      </div>
+      <h3 class="font-trirong text-xl font-bold text-gray-900 mb-1">กำลังประมวลผล PDFburning</h3>
+      <p id="progress-status-text" class="font-anuphan text-sm text-gray-600 mb-4">Gemini AI กำลังจัดระเบียบชุดข้อมูล...</p>
+      
+      <!-- Progress bar -->
+      <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden mb-2 p-0.5 border border-gray-200">
+        <div id="progress-bar-fill" class="bg-gradient-to-r from-orange-500 to-amber-500 h-full rounded-full transition-all duration-300 w-1/12"></div>
+      </div>
+      <div class="flex justify-between w-full text-[11px] font-anuphan text-gray-400 font-medium">
+        <span id="progress-step-text">ขั้นตอน: จัดระเบียบข้อมูล</span>
+        <span id="progress-percent-text">10%</span>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-gray-100 w-full flex items-center justify-center gap-2 text-xs text-gray-500 font-anuphan">
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+        <span id="progress-sub-detail">กรุณารอสักครู่ ระบบกำลังจัดเตรียมหน้าเอกสาร</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result & Download Modal -->
+  <div id="result-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl border border-orange-100 my-8">
+      <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+          </div>
+          <div>
+            <h3 class="font-trirong text-xl font-bold text-gray-900">สร้างเอกสาร PDF สำเร็จแล้ว!</h3>
+            <p class="font-anuphan text-xs text-gray-500">ระบบวาดพื้นหลังและใส่ข้อความตามตัวแปรเรียบร้อยแล้ว</p>
+          </div>
+        </div>
+        <button id="close-result-modal-btn" type="button" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="my-5 flex flex-col sm:flex-row items-center gap-5 bg-orange-50/50 p-4 rounded-xl border border-orange-100">
+        <!-- Thumbnail preview of page 1 -->
+        <div class="w-full sm:w-1/2 flex flex-col items-center">
+          <div class="w-full aspect-[4/3] rounded-lg overflow-hidden border border-gray-300 bg-white shadow-sm flex items-center justify-center">
+            <img id="result-preview-img" src="" alt="ตัวอย่างหน้าแรก" class="w-full h-full object-contain">
+          </div>
+          <span class="text-[11px] font-anuphan text-gray-500 mt-1.5">ตัวอย่างใบที่ 1 ที่สร้างขึ้น</span>
+        </div>
+
+        <!-- Details and count -->
+        <div class="w-full sm:w-1/2 flex flex-col justify-between self-stretch">
+          <div>
+            <div class="flex items-center gap-2 flex-wrap mb-2">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 font-anuphan">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> พร้อมดาวน์โหลด
+              </span>
+              <span id="result-ai-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-900 border border-orange-200 font-anuphan">
+                <svg class="w-3.5 h-3.5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                <span id="result-ai-badge-text">Gemini AI จัดระเบียบ</span>
+              </span>
+            </div>
+            <h4 id="result-count-title" class="font-trirong text-2xl font-bold text-orange-900 mb-1">รวมทั้งหมด 4 ใบ</h4>
+            <p id="result-applied-prompt-text" class="font-anuphan text-xs text-gray-600 mb-4">เอกสารได้รับการบรรจุลงในไฟล์ PDF รวมเป็นชุดเรียบร้อยแล้ว ดาวน์โหลดได้ทันที</p>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <button id="download-pdf-again-btn" type="button" class="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-anuphan font-semibold text-sm rounded-xl shadow-md transition flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+              <span>ดาวน์โหลดไฟล์ PDF อีกครั้ง</span>
+            </button>
+            <button id="toggle-data-preview-btn" type="button" class="w-full py-2 px-3 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-anuphan text-xs rounded-xl transition flex items-center justify-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+              <span id="toggle-data-text">ดูชุดข้อมูลที่ AI จัดระเบียบ</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Collapsible Data Table -->
+      <div id="result-data-table-container" class="hidden mt-4 pt-4 border-t border-gray-100 max-h-56 overflow-y-auto">
+        <h5 class="font-anuphan text-xs font-bold text-gray-700 mb-2">ตารางข้อมูลที่นำไปสร้างใบประกาศ (AI Organized Data):</h5>
+        <div id="result-data-table" class="text-xs font-anuphan border border-gray-200 rounded-lg overflow-x-auto"></div>
+      </div>
+
+      <div class="mt-5 pt-3 flex justify-end">
+        <button id="back-to-editor-btn" type="button" class="px-5 py-2 rounded-xl text-xs font-semibold text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 transition font-anuphan">
+          กลับสู่หน้าแก้ไข
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Prompt Modal -->
+  <div id="data-prompt-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-orange-100">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5 19h14a2 2 0 001.84-2.75L13.74 4a2 2 0 00-3.48 0l-7.1 12.25A2 2 0 005 19z"></path></svg>
+          </div>
+          <h3 class="font-trirong text-lg font-bold text-gray-900">ยังไม่มีข้อมูลรายชื่อสำหรับสร้าง</h3>
+        </div>
+        <button id="close-prompt-modal-btn" type="button" class="text-gray-400 hover:text-gray-600 p-1 rounded-md">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <p class="font-anuphan text-xs text-gray-600 mb-4">กรุณาเลือกช่องทางในการใส่ข้อมูลสำหรับนำมาสร้างเอกสาร:</p>
+
+      <div class="flex flex-col gap-3">
+        <button id="prompt-use-sample-btn" type="button" class="p-3.5 rounded-xl border border-orange-200 bg-orange-50/70 hover:bg-orange-100 text-left transition flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-orange-500 text-white flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+          </div>
+          <div>
+            <h4 class="font-anuphan text-xs font-bold text-orange-950">ใช้ข้อมูลรายชื่อตัวอย่างทันที (แนะนำเพื่อทดสอบ)</h4>
+            <p class="font-anuphan text-[11px] text-orange-700">รายชื่อ 4 คน พร้อมระดับเหรียญรางวัลและวันที่</p>
+          </div>
+        </button>
+
+        <button id="prompt-upload-btn" type="button" class="p-3.5 rounded-xl border border-blue-200 bg-blue-50/60 hover:bg-blue-100 text-left transition flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+          </div>
+          <div>
+            <h4 class="font-anuphan text-xs font-bold text-blue-950">อัพโหลดไฟล์จากเครื่อง (Excel / CSV / PDF / TXT)</h4>
+            <p class="font-anuphan text-[11px] text-blue-700">เลือกไฟล์จากคอมพิวเตอร์ของคุณ</p>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data File Viewer Modal (เปิดดูไฟล์ข้อมูล) -->
+  <div id="data-viewer-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-orange-100 my-auto overflow-hidden">
+      <!-- Modal Header -->
+      <div class="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/90">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center flex-shrink-0 shadow-2xs">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          </div>
+          <div>
+            <h3 class="font-trirong text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2 flex-wrap">
+              <span>เนื้อหาไฟล์ข้อมูล</span>
+              <span id="data-viewer-filename" class="text-xs font-anuphan font-medium text-orange-800 bg-orange-100 px-2.5 py-0.5 rounded-full border border-orange-200 truncate max-w-[240px]">ยังไม่มีไฟล์</span>
+            </h3>
+            <p id="data-viewer-summary" class="font-anuphan text-xs text-gray-500">ตรวจสอบตารางและข้อความที่จะนำไปให้ Gemini AI จัดระเบียบ</p>
+          </div>
+        </div>
+        <button id="close-data-viewer-btn" type="button" class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-200/60 transition" title="ปิดหน้าต่าง">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Toolbar: Tabs & Search -->
+      <div class="px-4 py-3 border-b border-gray-100 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div class="flex items-center gap-2">
+          <button id="viewer-tab-table" type="button" class="px-3.5 py-1.5 rounded-lg text-xs font-anuphan font-bold bg-orange-500 text-white shadow-2xs transition flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <span>มุมมองตาราง</span>
+          </button>
+          <button id="viewer-tab-raw" type="button" class="px-3.5 py-1.5 rounded-lg text-xs font-anuphan font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <span>ข้อความดิบ (Raw Text)</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <div class="relative w-full sm:w-56">
+            <input type="text" id="viewer-search-input" placeholder="ค้นหาในตาราง..." class="w-full text-xs pl-7 pr-3 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-orange-500 font-anuphan bg-gray-50 focus:bg-white transition">
+            <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          </div>
+          <button id="viewer-upload-new-btn" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-anuphan font-medium text-orange-700 hover:bg-orange-50 border border-orange-200 transition flex items-center gap-1 whitespace-nowrap shadow-2xs">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+            <span>เลือกไฟล์ใหม่</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="flex-1 overflow-y-auto p-4 sm:p-5 min-h-[260px] max-h-[55vh]">
+        <!-- Table View -->
+        <div id="viewer-table-container" class="border border-gray-200 rounded-xl overflow-x-auto bg-white shadow-2xs">
+          <table id="viewer-table" class="min-w-full divide-y divide-gray-200 text-xs font-anuphan">
+            <!-- Dynamically populated -->
+          </table>
+        </div>
+
+        <!-- Raw Text View -->
+        <div id="viewer-raw-container" class="hidden">
+          <pre id="viewer-raw-text" class="text-xs font-mono bg-gray-900 text-gray-100 p-4 rounded-xl overflow-x-auto max-h-[50vh] leading-relaxed whitespace-pre-wrap selection:bg-orange-600 selection:text-white"></pre>
+        </div>
+
+        <!-- Empty State -->
+        <div id="viewer-empty-container" class="hidden flex flex-col items-center justify-center text-center py-12 px-4">
+          <div class="w-14 h-14 rounded-2xl bg-orange-50 text-orange-400 flex items-center justify-center mb-3">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          </div>
+          <p class="font-trirong font-bold text-gray-700 text-base">ยังไม่ได้เลือกไฟล์ข้อมูล</p>
+          <p class="font-anuphan text-xs text-gray-500 mt-1 max-w-sm">คุณสามารถอัปโหลดไฟล์ Excel, CSV หรือใช้ข้อมูลตัวอย่างเพื่อเปิดดูเนื้อหาได้ทันที</p>
+          <div class="flex gap-2 mt-4">
+            <button id="viewer-empty-sample-btn" type="button" class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs font-anuphan font-medium shadow-2xs transition">ใช้ข้อมูลตัวอย่าง</button>
+            <button id="viewer-empty-upload-btn" type="button" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-anuphan font-medium transition">อัปโหลดไฟล์</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="p-3 sm:p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between text-xs font-anuphan text-gray-500">
+        <span id="viewer-row-count">พบ 0 แถว</span>
+        <button id="close-data-viewer-footer-btn" type="button" class="px-4 py-1.5 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold transition">ปิด</button>
       </div>
     </div>
   </div>
@@ -349,24 +637,253 @@
     const fontSizeUp = document.getElementById('font-size-up');
     const applyToAllBtn = document.getElementById('apply-to-all-btn');
     const selectedTextName = document.getElementById('selected-text-name');
-    const colorSwatches = document.querySelectorAll('.color-swatch');
+    const textColorHex = document.getElementById('text-color-hex');
+    const aiCustomPrompt = document.getElementById('ai-custom-prompt');
+    const aiPromptChips = document.querySelectorAll('.ai-prompt-chip');
     const generatePdfBtn = document.getElementById('generate-pdf-btn');
+
+    // DOM Elements สำหรับ Data Viewer Modal (เปิดดูไฟล์ข้อมูล)
+    const viewDataFileBtn = document.getElementById('view-data-file-btn');
+    const uploadViewDataBtn = document.getElementById('upload-view-data-btn');
+    const dataViewerModal = document.getElementById('data-viewer-modal');
+    const closeDataViewerBtn = document.getElementById('close-data-viewer-btn');
+    const closeDataViewerFooterBtn = document.getElementById('close-data-viewer-footer-btn');
+    const dataViewerFilename = document.getElementById('data-viewer-filename');
+    const dataViewerSummary = document.getElementById('data-viewer-summary');
+    const viewerTabTable = document.getElementById('viewer-tab-table');
+    const viewerTabRaw = document.getElementById('viewer-tab-raw');
+    const viewerSearchInput = document.getElementById('viewer-search-input');
+    const viewerTableContainer = document.getElementById('viewer-table-container');
+    const viewerTable = document.getElementById('viewer-table');
+    const viewerRawContainer = document.getElementById('viewer-raw-container');
+    const viewerRawText = document.getElementById('viewer-raw-text');
+    const viewerEmptyContainer = document.getElementById('viewer-empty-container');
+    const viewerRowCount = document.getElementById('viewer-row-count');
+    const viewerUploadNewBtn = document.getElementById('viewer-upload-new-btn');
+    const viewerEmptySampleBtn = document.getElementById('viewer-empty-sample-btn');
+    const viewerEmptyUploadBtn = document.getElementById('viewer-empty-upload-btn');
+
+    // DOM Elements เพิ่มเติมสำหรับปุ่มตัวอย่าง และ Modals
+    const useSampleImgBtn = document.getElementById('use-sample-img-btn');
+    const useSampleDataBtn = document.getElementById('use-sample-data-btn');
+
+    const progressModal = document.getElementById('progress-modal');
+    const progressBarFill = document.getElementById('progress-bar-fill');
+    const progressStatusText = document.getElementById('progress-status-text');
+    const progressStepText = document.getElementById('progress-step-text');
+    const progressPercentText = document.getElementById('progress-percent-text');
+    const progressSubDetail = document.getElementById('progress-sub-detail');
+
+    const resultModal = document.getElementById('result-modal');
+    const closeResultModalBtn = document.getElementById('close-result-modal-btn');
+    const resultPreviewImg = document.getElementById('result-preview-img');
+    const resultCountTitle = document.getElementById('result-count-title');
+    const resultAiBadge = document.getElementById('result-ai-badge');
+    const resultAiBadgeText = document.getElementById('result-ai-badge-text');
+    const resultAppliedPromptText = document.getElementById('result-applied-prompt-text');
+    const downloadPdfAgainBtn = document.getElementById('download-pdf-again-btn');
+    const toggleDataPreviewBtn = document.getElementById('toggle-data-preview-btn');
+    const toggleDataText = document.getElementById('toggle-data-text');
+    const resultDataTableContainer = document.getElementById('result-data-table-container');
+    const resultDataTable = document.getElementById('result-data-table');
+    const backToEditorBtn = document.getElementById('back-to-editor-btn');
+
+    const dataPromptModal = document.getElementById('data-prompt-modal');
+    const closePromptModalBtn = document.getElementById('close-prompt-modal-btn');
+    const promptUseSampleBtn = document.getElementById('prompt-use-sample-btn');
+    const promptUploadBtn = document.getElementById('prompt-upload-btn');
 
     let canvas = null;
     let selectedImageDataUrl = null;
     let selectedDataFile = null;
+    let selectedDataText = '';
+    let detectedColumns = [];
+    let parsedDataRows = [];
+    let originalImage = null;
+    let naturalImageWidth = 1600;
+    let naturalImageHeight = 1131;
+    let lastGeneratedPdfDoc = null;
+    let lastGeneratedRecords = [];
     let isUpdatingFromCanvas = false;
+
+    // แม่แบบเกียรติบัตรตัวอย่าง (สร้างด้วย HTML5 Canvas คุณภาพคมชัดสูง)
+    function createSampleCertificateTemplate() {
+      const c = document.createElement('canvas');
+      c.width = 1600;
+      c.height = 1131;
+      const ctx = c.getContext('2d');
+
+      // พื้นหลังโทนกระดาษทองหรูหรา
+      const bgGrad = ctx.createLinearGradient(0, 0, 1600, 1131);
+      bgGrad.addColorStop(0, '#FEFCF7');
+      bgGrad.addColorStop(0.5, '#FBF6EB');
+      bgGrad.addColorStop(1, '#F6EEDD');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, 1600, 1131);
+
+      // กรอบนอกสีทองบรอนซ์
+      ctx.strokeStyle = '#B45309';
+      ctx.lineWidth = 14;
+      ctx.strokeRect(36, 36, 1528, 1059);
+
+      // กรอบในลายเส้นสีทอง
+      ctx.strokeStyle = '#D97706';
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(56, 56, 1488, 1019);
+
+      // ลวดลายประดับมุมทั้ง 4 ด้าน
+      const corners = [
+        { x: 56, y: 56, dx: 1, dy: 1 },
+        { x: 1544, y: 56, dx: -1, dy: 1 },
+        { x: 56, y: 1075, dx: 1, dy: -1 },
+        { x: 1544, y: 1075, dx: -1, dy: -1 }
+      ];
+      corners.forEach(function (co) {
+        ctx.save();
+        ctx.translate(co.x, co.y);
+        ctx.scale(co.dx, co.dy);
+        ctx.fillStyle = '#B45309';
+        ctx.beginPath();
+        ctx.arc(0, 0, 22, 0, Math.PI / 2);
+        ctx.lineTo(0, 0);
+        ctx.fill();
+        ctx.fillRect(0, 0, 48, 4);
+        ctx.fillRect(0, 0, 4, 48);
+        ctx.restore();
+      });
+
+      // ข้อความหัวเอกสาร
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#92400E';
+      ctx.font = 'bold 52px "Trirong", serif';
+      ctx.fillText('เกียรติบัตรฉบับนี้ให้ไว้เพื่อแสดงว่า', 800, 240);
+
+      ctx.fillStyle = '#78350F';
+      ctx.font = '30px "Anuphan", sans-serif';
+      ctx.fillText('ได้เข้าร่วมโครงการและสร้างผลงานดีเด่น ประจำปี ๒๕๖๙', 800, 580);
+      ctx.fillText('ขอให้รักษาคุณงามความดีและพัฒนาศักยภาพเพื่อความก้าวหน้าสืบไป', 800, 780);
+
+      // เส้นลงนาม
+      ctx.strokeStyle = '#9CA3AF';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(600, 960);
+      ctx.lineTo(1000, 960);
+      ctx.stroke();
+
+      ctx.fillStyle = '#4B5563';
+      ctx.font = '24px "Anuphan", sans-serif';
+      ctx.fillText('(นายอำนวย พรเจริญ)', 800, 1000);
+      ctx.font = '20px "Anuphan", sans-serif';
+      ctx.fillText('ผู้อำนวยการสถาบัน', 800, 1035);
+
+      return c.toDataURL('image/png');
+    }
+
+    // ข้อมูลรายชื่อตัวอย่าง
+    function getSampleDataText() {
+      return 'ลำดับ,ชื่อ-นามสกุล,รางวัล,สังกัด,วันที่มอบ\n' +
+        '1,นายสมชาย วัฒนศิลป์,รางวัลชนะเลิศอันดับ 1 (เหรียญทอง),โรงเรียนสวนกุหลาบวิทยาลัย,15 กุมภาพันธ์ 2569\n' +
+        '2,นางสาวพิมพ์ใจ สุขเกษม,รางวัลรองชนะเลิศอันดับ 1 (เหรียญเงิน),โรงเรียนเตรียมอุดมศึกษา,15 กุมภาพันธ์ 2569\n' +
+        '3,นายกิตติศักดิ์ ศรีวิชัย,รางวัลรองชนะเลิศอันดับ 2 (เหรียญทองแดง),โรงเรียนสาธิตจุฬาลงกรณ์มหาวิทยาลัย,15 กุมภาพันธ์ 2569\n' +
+        '4,นางสาววรัญญา ภักดี,รางวัลชมเชยเกียรติคุณพิเศษ,โรงเรียนบดินทรเดชา,15 กุมภาพันธ์ 2569';
+    }
+
+    function getSampleDataRows() {
+      return [
+        { 'ลำดับ': '1', 'ชื่อ-นามสกุล': 'นายสมชาย วัฒนศิลป์', 'รางวัล': 'รางวัลชนะเลิศอันดับ 1 (เหรียญทอง)', 'สังกัด': 'โรงเรียนสวนกุหลาบวิทยาลัย', 'วันที่มอบ': '15 กุมภาพันธ์ 2569' },
+        { 'ลำดับ': '2', 'ชื่อ-นามสกุล': 'นางสาวพิมพ์ใจ สุขเกษม', 'รางวัล': 'รางวัลรองชนะเลิศอันดับ 1 (เหรียญเงิน)', 'สังกัด': 'โรงเรียนเตรียมอุดมศึกษา', 'วันที่มอบ': '15 กุมภาพันธ์ 2569' },
+        { 'ลำดับ': '3', 'ชื่อ-นามสกุล': 'นายกิตติศักดิ์ ศรีวิชัย', 'รางวัล': 'รางวัลรองชนะเลิศอันดับ 2 (เหรียญทองแดง)', 'สังกัด': 'โรงเรียนสาธิตจุฬาลงกรณ์มหาวิทยาลัย', 'วันที่มอบ': '15 กุมภาพันธ์ 2569' },
+        { 'ลำดับ': '4', 'ชื่อ-นามสกุล': 'นางสาววรัญญา ภักดี', 'รางวัล': 'รางวัลชมเชยเกียรติคุณพิเศษ', 'สังกัด': 'โรงเรียนบดินทรเดชา', 'วันที่มอบ': '15 กุมภาพันธ์ 2569' }
+      ];
+    }
+
+    // สกัดข้อมูลจากไฟล์ (Excel, CSV, PDF, TXT)
+    async function parseDataFile(file) {
+      if (!file) return { text: '', columns: [], rows: [] };
+      const ext = file.name.split('.').pop().toLowerCase();
+
+      try {
+        if (ext === 'xlsx' || ext === 'xls') {
+          const arrayBuffer = await file.arrayBuffer();
+          if (typeof XLSX !== 'undefined') {
+            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+            let combinedText = '';
+            let cols = [];
+            let rows = [];
+            workbook.SheetNames.forEach(function (sheetName, idx) {
+              const worksheet = workbook.Sheets[sheetName];
+              const csv = XLSX.utils.sheet_to_csv(worksheet);
+              combinedText += (idx > 0 ? '\n\n' : '') + `[ชีต: ${sheetName}]\n` + csv;
+              if (idx === 0) {
+                const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                if (json && json.length > 0) {
+                  cols = json[0].filter(function (c) { return c != null && String(c).trim() !== ''; }).map(function (c) { return String(c).trim(); });
+                  for (let r = 1; r < json.length; r++) {
+                    const rowArr = json[r];
+                    if (!rowArr || rowArr.length === 0 || rowArr.every(function (c) { return c == null || String(c).trim() === ''; })) continue;
+                    const rowObj = {};
+                    cols.forEach(function (colName, cIdx) {
+                      rowObj[colName] = rowArr[cIdx] != null ? String(rowArr[cIdx]).trim() : '';
+                    });
+                    rows.push(rowObj);
+                  }
+                }
+              }
+            });
+            return { text: combinedText, columns: cols, rows: rows };
+          }
+        } else if (ext === 'pdf') {
+          const arrayBuffer = await file.arrayBuffer();
+          const pdfjsLib = window['pdfjs-dist/build/pdf'];
+          if (pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let fullText = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+              const page = await pdf.getPage(i);
+              const textContent = await page.getTextContent();
+              const pageText = textContent.items.map(function (item) { return item.str; }).join(' ');
+              fullText += `[หน้า ${i}]\n${pageText}\n\n`;
+            }
+            return { text: fullText, columns: [], rows: [] };
+          }
+        }
+        
+        // CSV or plain text
+        const text = await file.text();
+        const lines = text.split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
+        let cols = [];
+        let rows = [];
+        if (lines.length > 0) {
+          cols = lines[0].split(',').map(function (c) { return c.replace(/["']/g, '').trim(); }).filter(Boolean);
+          for (let i = 1; i < lines.length; i++) {
+            const cells = lines[i].split(',').map(function (c) { return c.replace(/["']/g, '').trim(); });
+            if (cells.length === 0 || cells.every(function (c) { return c === ''; })) continue;
+            const rowObj = {};
+            cols.forEach(function (colName, idx) {
+              rowObj[colName] = cells[idx] != null ? cells[idx] : '';
+            });
+            rows.push(rowObj);
+          }
+        }
+        return { text: text, columns: cols, rows: rows };
+      } catch (err) {
+        console.error('Error parsing file:', err);
+        return { text: '', columns: [], rows: [] };
+      }
+    }
 
     // ==========================================
     // ARRAY ของ OBJECT ตัวแปร ( dynamic 1 ถึง ∞ )
     // โครงสร้างข้อมูลแต่ละตัวแปร:
     // variables[i] = {
     //   id: 1,
-    //   text: "ตัวแปร1",             // ชื่อตัวแปร / อักขระตัวแปร
-    //   column: "รายชื่อ",            // คอลัมน์ / ชื่อของตัวแปร
+    //   text: "นายสมชาย ใจดี",          // ข้อความตัวอย่างบนภาพ / Canvas
+    //   column: "ชื่อ-นามสกุล",         // คอลัมน์ / หัวข้อในไฟล์ข้อมูลที่ตรงกัน
     //   fontFamily: "Anuphan",       // ฟอนต์
-    //   fontSize: 24,                // ขนาดฟอนต์
-    //   fill: "#FFFFFF",             // สีฟอนต์
+    //   fontSize: 28,                // ขนาดฟอนต์
+    //   fill: "#FFFFFF",             // สีฟอนต์ (สีขาวค่าเริ่มต้น)
     //   left: 300,                   // ตำแหน่ง X
     //   top: 200,                    // ตำแหน่ง Y
     //   angle: 0                     // มุมหมุน
@@ -395,6 +912,38 @@
     imageDropzone.addEventListener('click', function () { imageUpload.click(); });
     fileDropzone.addEventListener('click', function () { dataUpload.click(); });
 
+    // ปุ่มใช้แม่แบบเกียรติบัตรตัวอย่าง
+    if (useSampleImgBtn) {
+      useSampleImgBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        selectedImageDataUrl = createSampleCertificateTemplate();
+        imagePreview.src = selectedImageDataUrl;
+        imageFilename.textContent = 'แม่แบบเกียรติบัตรตัวอย่าง (A4 แนวนอน)';
+        imagePlaceholder.classList.add('hidden');
+        imagePreviewContainer.classList.remove('hidden');
+        imgStatusBadge.classList.remove('hidden');
+        uploadAlert.classList.add('hidden');
+        showToast('โหลดแม่แบบเกียรติบัตรตัวอย่างเรียบร้อย', 'success');
+      });
+    }
+
+    // ปุ่มใช้ข้อมูลตัวอย่าง
+    if (useSampleDataBtn) {
+      useSampleDataBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        selectedDataText = getSampleDataText();
+        detectedColumns = ['ลำดับ', 'ชื่อ-นามสกุล', 'รางวัล', 'สังกัด', 'วันที่มอบ'];
+        parsedDataRows = getSampleDataRows();
+        selectedDataFile = { name: 'ข้อมูลรายชื่อตัวอย่าง (4 คน).csv', size: 1024 };
+        fileNameText.textContent = selectedDataFile.name;
+        fileSizeText.textContent = '4 รายชื่อ (พร้อมใช้งาน)';
+        filePlaceholder.classList.add('hidden');
+        filePreviewContainer.classList.remove('hidden');
+        fileStatusBadge.classList.remove('hidden');
+        showToast('โหลดข้อมูลรายชื่อตัวอย่างเรียบร้อย', 'success');
+      });
+    }
+
     imageUpload.addEventListener('change', function (e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -411,7 +960,7 @@
       reader.readAsDataURL(file);
     });
 
-    dataUpload.addEventListener('change', function (e) {
+    dataUpload.addEventListener('change', async function (e) {
       const file = e.target.files[0];
       if (!file) return;
       selectedDataFile = file;
@@ -422,6 +971,14 @@
       filePlaceholder.classList.add('hidden');
       filePreviewContainer.classList.remove('hidden');
       fileStatusBadge.classList.remove('hidden');
+
+      // สกัดข้อความและคอลัมน์ล่วงหน้า
+      const parsed = await parseDataFile(file);
+      selectedDataText = parsed.text;
+      parsedDataRows = parsed.rows || [];
+      if (parsed.columns && parsed.columns.length > 0) {
+        detectedColumns = parsed.columns;
+      }
     });
 
     cancelBtn.addEventListener('click', function () {
@@ -430,13 +987,24 @@
       stepStart.classList.remove('hidden');
     });
 
-    confirmBtn.addEventListener('click', function () {
+    confirmBtn.addEventListener('click', async function () {
       if (!selectedImageDataUrl) {
         uploadAlert.classList.remove('hidden');
         uploadAlertText.textContent = 'กรุณาเลือกไฟล์ภาพแม่แบบก่อนกดตกลง';
         showToast('กรุณาเลือกไฟล์ภาพแม่แบบก่อน', 'warning');
         return;
       }
+
+      // หากมีไฟล์ข้อมูลแต่ยังไม่ได้สกัดข้อความ
+      if (selectedDataFile && !selectedDataText && typeof selectedDataFile.arrayBuffer === 'function') {
+        const parsed = await parseDataFile(selectedDataFile);
+        selectedDataText = parsed.text;
+        parsedDataRows = parsed.rows || [];
+        if (parsed.columns && parsed.columns.length > 0) {
+          detectedColumns = parsed.columns;
+        }
+      }
+
       stepUpload.classList.add('hidden');
       stepEditor.classList.remove('hidden');
       if (selectedDataFile) {
@@ -445,6 +1013,7 @@
       } else {
         attachedFileTag.classList.add('hidden');
       }
+
       renderFabricCanvas(selectedImageDataUrl);
     });
 
@@ -475,10 +1044,14 @@
       const imgObj = new Image();
       imgObj.src = imageUrl;
       imgObj.onload = function () {
+        originalImage = imgObj;
+        naturalImageWidth = imgObj.naturalWidth || imgObj.width || 1600;
+        naturalImageHeight = imgObj.naturalHeight || imgObj.height || 1131;
+
         const maxWidth = Math.min(window.innerWidth - 40, 800);
-        const scaleRatio = maxWidth / imgObj.width;
+        const scaleRatio = maxWidth / naturalImageWidth;
         const canvasWidth = maxWidth;
-        const canvasHeight = imgObj.height * scaleRatio;
+        const canvasHeight = naturalImageHeight * scaleRatio;
 
         if (!canvas) {
           canvas = new fabric.Canvas('fabric-canvas');
@@ -494,8 +1067,8 @@
         
         canvas.clear();
         canvas.add(fabricImg);
-        canvas.renderAll();
 
+        // วาดตัวแปรที่มีอยู่เดิม (ถ้ามี)
         variables.forEach(function (v) {
           const textObj = new fabric.IText(v.text || 'ตัวแปร', {
             left: v.left, top: v.top, angle: v.angle || 0,
@@ -520,7 +1093,7 @@
         const v = getVariableByFabricObj(obj);
         if (v) {
           v.text = obj.text;
-          v.column = obj.text; // อัปเดตชื่อตัวแปรโดยอัตโนมัติ
+          if (!v.column) v.column = obj.text;
         }
         updateVariableMappingUI();
         updateTextPropertiesPanel(obj);
@@ -581,7 +1154,7 @@
 
       const color = obj.fill || '#FFFFFF';
       textColorPicker.value = color;
-      colorSwatches.forEach(function (sw) { sw.classList.toggle('active', sw.dataset.color === color); });
+      if (textColorHex) textColorHex.textContent = color.toUpperCase();
 
       const font = obj.fontFamily || 'Anuphan';
       if ([].slice.call(textFontSelect.options).some(function (opt) { return opt.value === font; })) textFontSelect.value = font;
@@ -613,7 +1186,7 @@
         v.fontSize = size;
       }
 
-      colorSwatches.forEach(function (sw) { sw.classList.toggle('active', sw.dataset.color === color); });
+      if (textColorHex) textColorHex.textContent = color.toUpperCase();
       selectedTextName.textContent = active.text || '(ไม่มีชื่อ)';
       updateVariableMappingUI();
     }
@@ -633,13 +1206,6 @@
       val = Math.min(200, val + 2);
       textSizeSelect.value = val;
       updateSelectedObjectFromPanel();
-    });
-
-    colorSwatches.forEach(function (sw) {
-      sw.addEventListener('click', function () {
-        textColorPicker.value = sw.dataset.color;
-        updateSelectedObjectFromPanel();
-      });
     });
 
     applyToAllBtn.addEventListener('click', function () {
@@ -679,20 +1245,20 @@
         mappingList.innerHTML =
           '<div class="flex flex-col items-center justify-center text-center py-10 px-4 h-full border-2 border-dashed border-gray-100 rounded-lg bg-gray-50/50">' +
             '<svg class="w-10 h-10 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>' +
-            '<p class="text-sm text-gray-500 font-medium">ยังไม่มีตัวแปรบนเอกสาร</p>' +
-            '<p class="text-xs text-gray-400 mt-1">กดปุ่ม "เพิ่มตัวแปรข้อความ" เพื่อเริ่มต้น</p>' +
+            '<p class="text-sm text-gray-500 font-medium font-anuphan">ยังไม่มีตัวแปรบนเอกสาร</p>' +
+            '<p class="text-xs text-gray-400 mt-1 font-anuphan">กดปุ่ม "เพิ่มตัวแปรข้อความ" เพื่อเริ่มต้น</p>' +
           '</div>';
         return;
       }
 
       variables.forEach(function (v, index) {
         const card = document.createElement('div');
-        card.className = 'bg-gray-50 border border-gray-200 p-3.5 rounded-xl flex flex-col gap-2.5 hover:border-orange-300 transition-colors shadow-sm';
+        card.className = 'bg-gray-50 border border-gray-200 p-3.5 rounded-xl flex flex-col gap-2 hover:border-orange-300 transition-colors shadow-2xs';
 
         card.innerHTML =
           '<div class="flex items-center justify-between gap-2 border-b border-gray-200/80 pb-2">' +
             '<div class="flex items-center gap-2 overflow-hidden flex-1">' +
-              '<span class="flex-shrink-0 w-6 h-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs font-bold font-anuphan shadow-xs">' + (index + 1) + '</span>' +
+              '<span class="flex-shrink-0 w-6 h-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs font-bold font-anuphan shadow-2xs">' + (index + 1) + '</span>' +
               '<span class="text-sm font-bold text-gray-800 truncate" title="' + escapeHtml(v.text) + '">' + escapeHtml(v.text) + '</span>' +
             '</div>' +
             '<button class="delete-var-btn text-gray-400 hover:text-red-500 p-1 rounded-md hover:bg-red-50 transition flex-shrink-0" title="ลบตัวแปรนี้">' +
@@ -701,36 +1267,44 @@
           '</div>' +
 
           '<div class="flex flex-col gap-1">' +
-            '<label class="text-[11px] font-semibold text-gray-600 font-anuphan">ชื่อตัวแปร / คอลัมน์ที่สอดคล้อง</label>' +
-            '<input type="text" class="v-name-input text-xs px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 shadow-xs font-anuphan bg-white font-medium text-gray-800" value="' + escapeHtml(v.text) + '" placeholder="ระบุชื่อตัวแปร">' +
+            '<label class="text-[11px] font-semibold text-gray-700 font-anuphan">ข้อความตัวอย่างบนภาพ (แสดงผลบน Canvas)</label>' +
+            '<input type="text" class="v-sample-text text-xs px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 shadow-2xs font-anuphan bg-white text-gray-800 font-medium" value="' + escapeHtml(v.text) + '" placeholder="เช่น นายสมชาย ใจดี">' +
           '</div>' +
 
-          '<div class="grid grid-cols-2 gap-2 bg-white p-2.5 rounded-lg border border-gray-100 text-[11px] font-anuphan text-gray-600">' +
+          '<div class="flex flex-col gap-1">' +
+            '<div class="flex items-center justify-between">' +
+              '<label class="text-[11px] font-semibold text-orange-900 font-anuphan">หัวข้อ/คอลัมน์ในไฟล์ที่ตรงกัน</label>' +
+              '<span class="text-[10px] text-gray-400 font-anuphan">ใช้จับคู่ข้อมูล</span>' +
+            '</div>' +
+            '<input type="text" class="v-column-input text-xs px-3 py-1.5 border border-orange-200 rounded-lg focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 shadow-2xs font-anuphan bg-orange-50/40 text-orange-950 font-medium" value="' + escapeHtml(v.column || v.text) + '" placeholder="เช่น ชื่อ-นามสกุล, รางวัล, วันที่">' +
+            '<div class="col-chips-container flex flex-wrap gap-1 mt-1"></div>' +
+          '</div>' +
+
+          '<div class="grid grid-cols-2 gap-2 bg-white p-2 rounded-lg border border-gray-100 text-[11px] font-anuphan text-gray-600 mt-1">' +
             '<div class="flex items-center gap-1.5 truncate">' +
-              '<span class="text-gray-400 font-medium">ตำแหน่ง:</span>' +
-              '<span class="font-mono text-gray-800 font-semibold">X:' + Math.round(v.left) + ' Y:' + Math.round(v.top) + '</span>' +
+              '<span class="text-gray-400">พิกัด:</span>' +
+              '<span class="font-mono text-gray-800 font-semibold text-[10px]">X:' + Math.round(v.left) + ' Y:' + Math.round(v.top) + '</span>' +
             '</div>' +
             '<div class="flex items-center gap-1.5 truncate">' +
-              '<span class="text-gray-400 font-medium">ขนาด:</span>' +
+              '<span class="text-gray-400">ขนาด:</span>' +
               '<span class="font-semibold text-gray-800">' + Math.round(v.fontSize) + ' px</span>' +
             '</div>' +
             '<div class="flex items-center gap-1.5 truncate">' +
-              '<span class="text-gray-400 font-medium">ฟอนต์:</span>' +
+              '<span class="text-gray-400">ฟอนต์:</span>' +
               '<span class="font-semibold text-gray-800 truncate" title="' + escapeHtml(v.fontFamily) + '">' + escapeHtml(v.fontFamily) + '</span>' +
             '</div>' +
             '<div class="flex items-center gap-1.5 truncate">' +
-              '<span class="text-gray-400 font-medium">สี:</span>' +
-              '<span class="w-3.5 h-3.5 rounded-full border border-gray-300 inline-block flex-shrink-0 shadow-xs" style="background-color: ' + escapeHtml(v.fill) + '"></span>' +
-              '<span class="font-mono text-xs uppercase text-gray-700">' + escapeHtml(v.fill) + '</span>' +
+              '<span class="text-gray-400">สี:</span>' +
+              '<span class="w-3.5 h-3.5 rounded-full border border-gray-300 inline-block flex-shrink-0" style="background-color: ' + escapeHtml(v.fill) + '"></span>' +
+              '<span class="font-mono text-[10px] uppercase text-gray-700">' + escapeHtml(v.fill) + '</span>' +
             '</div>' +
           '</div>';
 
-        // Event listener: อัปเดตชื่อตัวแปรแบบเรียลไทม์
-        const nameInput = card.querySelector('.v-name-input');
-        nameInput.addEventListener('input', function (e) {
+        // ป้อนข้อความตัวอย่างบนภาพ
+        const sampleInput = card.querySelector('.v-sample-text');
+        sampleInput.addEventListener('input', function (e) {
           const val = e.target.value;
           v.text = val;
-          v.column = val;
           const fabricObj = canvas ? canvas.getObjects().find(function (o) { return o.varId === v.id; }) : null;
           if (fabricObj) {
             fabricObj.set('text', val || ' ');
@@ -738,7 +1312,31 @@
           }
         });
 
-        // Event listener: ปุ่มลบตัวแปร
+        // ป้อนหัวข้อ/คอลัมน์ในไฟล์ข้อมูล
+        const colInput = card.querySelector('.v-column-input');
+        colInput.addEventListener('input', function (e) {
+          v.column = e.target.value;
+        });
+
+        // สร้างชิปคอลัมน์ที่ตรวจพบให้คลิกเลือกได้ทันที
+        const chipsContainer = card.querySelector('.col-chips-container');
+        if (detectedColumns && detectedColumns.length > 0) {
+          detectedColumns.forEach(function (col) {
+            const chip = document.createElement('button');
+            chip.type = 'button';
+            chip.className = 'px-2 py-0.5 rounded bg-orange-100/80 hover:bg-orange-200 text-[10px] font-anuphan text-orange-900 transition flex items-center gap-1 border border-orange-200/60 shadow-2xs';
+            chip.innerHTML = '<span>+ ' + escapeHtml(col) + '</span>';
+            chip.title = 'คลิกเพื่อจับคู่กับ ' + col;
+            chip.addEventListener('click', function () {
+              colInput.value = col;
+              v.column = col;
+              showToast('จับคู่กับคอลัมน์ "' + col + '" แล้ว', 'info', 1500);
+            });
+            chipsContainer.appendChild(chip);
+          });
+        }
+
+        // ปุ่มลบตัวแปร
         const delBtn = card.querySelector('.delete-var-btn');
         delBtn.addEventListener('click', function (e) {
           e.stopPropagation();
@@ -746,10 +1344,9 @@
           if (fabricObj) {
             canvas.remove(fabricObj);
             canvas.renderAll();
-          } else {
-            variables = variables.filter(function (x) { return x.id !== v.id; });
-            updateVariableMappingUI();
           }
+          variables = variables.filter(function (x) { return x.id !== v.id; });
+          updateVariableMappingUI();
         });
 
         card.addEventListener('mouseenter', function () {
@@ -781,16 +1378,22 @@
       if (!canvas) return;
 
       const id = varIdCounter++;
-      const varName = 'ตัวแปร' + id;
+      const suggestedCol = detectedColumns[variables.length] || ('ตัวแปร' + id);
+      
+      // ใช้สีและฟอนต์ที่ผู้ใช้ปรับไว้ในแผงควบคุม หรือใช้ค่าเริ่มต้นสีขาว + Anuphan
+      const currentFill = textColorPicker ? (textColorPicker.value || '#FFFFFF') : '#FFFFFF';
+      const currentFont = textFontSelect ? (textFontSelect.value || 'Anuphan') : 'Anuphan';
+      const currentSize = textSizeSelect ? (parseInt(textSizeSelect.value) || 26) : 26;
+
       const newVar = {
         id: id,
-        text: varName,
-        column: varName,
-        fontFamily: 'Anuphan',
-        fontSize: 24,
-        fill: '#FFFFFF',
-        left: Math.round(canvas.width / 2 - 50),
-        top: Math.round(canvas.height / 2 - 20),
+        text: suggestedCol,
+        column: suggestedCol,
+        fontFamily: currentFont,
+        fontSize: currentSize,
+        fill: currentFill,
+        left: Math.round(canvas.width / 2 - 80),
+        top: Math.round(canvas.height / 2 - 20 + (variables.length * 35)),
         angle: 0
       };
       variables.push(newVar);
@@ -854,12 +1457,565 @@
       textPropertiesPanel.classList.add('hidden');
     });
 
-    generatePdfBtn.addEventListener('click', function () {
-      if (!canvas || variables.length === 0) {
-        showToast('กรุณาเพิ่มตัวแปรข้อความก่อนสร้างเอกสาร', 'warning');
+    // ==========================================
+    // ระบบจัดระเบียบข้อมูลด้วย Gemini API + Local Fallback
+    // ==========================================
+    async function organizeDataWithAI(vars, rawDataText) {
+      const userCustomPrompt = aiCustomPrompt ? aiCustomPrompt.value.trim() : '';
+
+      // 1. เรียกใช้ Gemini API ผ่าน /api/gemini
+      try {
+        const varDescriptions = vars.map(function (v) {
+          return `- ID: "${v.id}" | ข้อความตัวอย่างบนแบบ: "${v.text}" | คอลัมน์ที่เลือกจับคู่: "${v.column || v.text}"`;
+        }).join('\n');
+
+        let systemInstruction = 'คุณคือระบบ AI จัดระเบียบข้อมูลสำหรับโปรแกรมสร้างการ์ดและเกียรติบัตร (PDFburning)\n' +
+          'หน้าที่หลัก: อ่านข้อมูลดิบจากไฟล์ที่ได้รับ แล้วนำข้อมูลแต่ละแถว/แต่ละคน มาจับคู่กับตัวแปรที่กำหนดให้ เพื่อสร้างเป็นชุดข้อมูลสำหรับพิมพ์ลงบนการ์ดทีละใบ\n\n' +
+          'รายการตัวแปรที่ต้องดึง (key ใน object ต้องใช้ ID เหล่านี้เท่านั้น):\n' +
+          varDescriptions + '\n\n';
+
+        if (userCustomPrompt) {
+          systemInstruction += '🚨🚨 คำสั่งพิเศษจากผู้ใช้ (CUSTOM USER INSTRUCTION) - ต้องปฏิบัติตามคำสั่งนี้เป็นอันดับ 1 อย่างเคร่งครัด:\n' +
+            '"""\n' + userCustomPrompt + '\n"""\n' +
+            'กรุณาแปลงข้อมูล, คัดกรอง, เรียงลำดับ หรือปรับรูปแบบตามคำสั่งพิเศษนี้อย่างเคร่งครัดก่อนส่งผลลัพธ์กลับมา\n\n';
+        }
+
+        systemInstruction += 'ข้อมูลดิบจากไฟล์:\n' +
+          '=== ข้อมูลเริ่มต้น ===\n' +
+          rawDataText.slice(0, 20000) + '\n' +
+          '=== สิ้นสุดข้อมูล ===\n\n' +
+          'กติกาการตอบกลับ (STRICT FORMAT):\n' +
+          '1. ตอบกลับเป็น JSON เท่านั้น โดยมีรูปแบบ: {"records": [{"' + vars[0].id + '": "ค่าที่ดึงได้", ...}, ...]}\n' +
+          '2. ในแต่ละ object ของ array "records" จะแทนเอกสาร 1 ใบ และต้องมี key ตรงกับ ID ตัวแปรที่ระบุครบถ้วน\n' +
+          '3. ดึงข้อมูลให้ครบทุกคน/ทุกแถว ห้ามข้าม\n' +
+          '4. ห้ามใส่ข้อความเกริ่นนำ ข้อความสรุป หรือ markdown backticks ให้คืนเฉพาะ JSON object ล้วนๆ เท่านั้น';
+
+        const response = await fetch('/api/gemini', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: systemInstruction }] }]
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (rawText) {
+            let cleanJson = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+            const firstBrace = cleanJson.indexOf('{');
+            const lastBrace = cleanJson.lastIndexOf('}');
+            if (firstBrace !== -1 && lastBrace !== -1) {
+              cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
+            }
+            const parsed = JSON.parse(cleanJson);
+            if (parsed.records && Array.isArray(parsed.records) && parsed.records.length > 0) {
+              return { records: parsed.records, source: 'gemini', customPrompt: userCustomPrompt };
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Gemini API call returned error or is unavailable, using local table parser:', err);
+      }
+
+      // 2. ระบบสำรองอัจฉริยะ (Local Table/CSV Parser) หากไม่มี API key หรือเครือข่ายขัดข้อง
+      return { records: localFallbackParse(vars, rawDataText, userCustomPrompt), source: 'fallback', customPrompt: userCustomPrompt };
+    }
+
+    function localFallbackParse(vars, rawDataText, customPrompt = '') {
+      const lines = rawDataText.split('\n')
+        .map(function (l) { return l.trim(); })
+        .filter(function (l) { return l && !l.startsWith('[ชีต') && !l.startsWith('[หน้า'); });
+      if (lines.length < 2) return [];
+
+      const headers = lines[0].split(',').map(function (h) { return h.replace(/["']/g, '').trim().toLowerCase(); });
+      let rows = [];
+      const thaiDigits = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
+      const convertToThaiDigits = customPrompt.includes('เลขไทย');
+      const uppercaseAll = customPrompt.includes('พิมพ์ใหญ่') || customPrompt.toLowerCase().includes('uppercase');
+      const lowercaseAll = customPrompt.includes('พิมพ์เล็ก') || customPrompt.toLowerCase().includes('lowercase');
+
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',').map(function (c) { return c.replace(/["']/g, '').trim(); });
+        if (cols.length === 0 || cols.every(function (c) { return c === ''; })) continue;
+
+        const record = {};
+        vars.forEach(function (v) {
+          const targetCol = (v.column || v.text || '').toLowerCase().trim();
+          let matchedIdx = headers.findIndex(function (h) { return h === targetCol; });
+          if (matchedIdx === -1) {
+            matchedIdx = headers.findIndex(function (h) { return h.includes(targetCol) || targetCol.includes(h); });
+          }
+          let val = (matchedIdx !== -1 && cols[matchedIdx] != null) ? cols[matchedIdx] : v.text;
+          if (convertToThaiDigits && val) {
+            val = String(val).replace(/[0-9]/g, function (d) { return thaiDigits[parseInt(d)]; });
+          }
+          if (uppercaseAll && val) {
+            val = String(val).toUpperCase();
+          }
+          if (lowercaseAll && val) {
+            val = String(val).toLowerCase();
+          }
+          record[String(v.id)] = val;
+        });
+        rows.push(record);
+      }
+
+      // รองรับคำสั่งเรียงลำดับใน Fallback (เช่น เรียงตามชื่อ หรือ เรียงจากน้อยไปมาก)
+      if (customPrompt.includes('เรียง') || customPrompt.includes('sort')) {
+        const firstVarId = String(vars[0]?.id || '');
+        if (firstVarId) {
+          rows.sort(function (a, b) {
+            return String(a[firstVarId] || '').localeCompare(String(b[firstVarId] || ''), 'th');
+          });
+        }
+      }
+
+      return rows;
+    }
+
+    // ==========================================
+    // ฟังก์ชันสร้าง PDF จากชุดข้อมูล (วาดพื้นหลัง + ข้อความฟอนต์ไทย + รวมหน้า)
+    // ==========================================
+    async function generatePdfFromRecords(records, source = 'gemini', userPrompt = '') {
+      if (!records || records.length === 0) {
+        progressModal.classList.add('hidden');
+        showToast('ไม่พบข้อมูลที่จะนำมาสร้างเอกสาร', 'error');
         return;
       }
-      showToast('ระบบสร้าง PDF กำลังพัฒนา', 'info', 4000);
+
+      const bgImg = new Image();
+      bgImg.src = selectedImageDataUrl;
+      await new Promise(function (resolve, reject) {
+        if (bgImg.complete) resolve();
+        else { bgImg.onload = resolve; bgImg.onerror = reject; }
+      });
+
+      const W = naturalImageWidth || bgImg.naturalWidth || 1600;
+      const H = naturalImageHeight || bgImg.naturalHeight || 1131;
+
+      // Offscreen Canvas ขนาดจริงคมชัด 100%
+      const offscreen = document.createElement('canvas');
+      offscreen.width = W;
+      offscreen.height = H;
+      const ctx = offscreen.getContext('2d');
+
+      const scaleX = W / canvas.width;
+      const scaleY = H / canvas.height;
+
+      // รอโหลด Web Fonts
+      if (document.fonts && document.fonts.ready) {
+        await document.fonts.ready;
+      }
+
+      const isLandscape = W >= H;
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: isLandscape ? 'l' : 'p',
+        unit: 'px',
+        format: [W, H],
+        hotfixes: ['px_scaling']
+      });
+
+      let firstPageThumb = null;
+
+      for (let i = 0; i < records.length; i++) {
+        const rec = records[i];
+
+        // อัปเดตแถบความคืบหน้า
+        const pct = Math.round(((i + 1) / records.length) * 100);
+        progressBarFill.style.width = pct + '%';
+        progressPercentText.textContent = pct + '%';
+        progressStepText.textContent = 'สร้างใบที่ ' + (i + 1) + '/' + records.length;
+        progressStatusText.textContent = 'กำลังวาดและบรรจุเอกสารลงใน PDF (' + (i + 1) + ' จาก ' + records.length + ' ใบ)';
+
+        // 1. วาดรูปภาพพื้นหลัง
+        ctx.clearRect(0, 0, W, H);
+        ctx.drawImage(bgImg, 0, 0, W, H);
+
+        // 2. วาดข้อความของแต่ละตัวแปรตามพิกัด ฟอนต์ ขนาด และสี
+        variables.forEach(function (v) {
+          const val = rec[String(v.id)] != null ? rec[String(v.id)] : (v.text || '');
+          const posX = v.left * scaleX;
+          const posY = v.top * scaleY;
+          const fSize = Math.max(12, Math.round(v.fontSize * scaleY));
+
+          ctx.save();
+          ctx.font = 'bold ' + fSize + 'px "' + (v.fontFamily || 'Anuphan') + '", "Sarabun", sans-serif';
+          ctx.fillStyle = v.fill || '#FFFFFF';
+          ctx.textBaseline = 'top';
+          ctx.textAlign = 'left';
+
+          if (v.angle && v.angle !== 0) {
+            ctx.translate(posX, posY);
+            ctx.rotate((v.angle * Math.PI) / 180);
+            ctx.fillText(String(val), 0, 0);
+          } else {
+            ctx.fillText(String(val), posX, posY);
+          }
+          ctx.restore();
+        });
+
+        // 3. แปลงหน้า Canvas เป็นภาพเพื่อใส่ใน jsPDF
+        const pageImgData = offscreen.toDataURL('image/jpeg', 0.93);
+        if (i === 0) firstPageThumb = pageImgData;
+
+        if (i > 0) {
+          pdf.addPage([W, H], isLandscape ? 'l' : 'p');
+        }
+        pdf.addImage(pageImgData, 'JPEG', 0, 0, W, H, undefined, 'FAST');
+
+        // สลับ tick เพื่อให้เบราว์เซอร์เรนเดอร์ UI ได้ราบรื่น
+        if (records.length > 1) {
+          await new Promise(function (r) { setTimeout(r, 25); });
+        }
+      }
+
+      // บันทึกและดาวน์โหลดไฟล์ PDF
+      const outputFilename = 'PDFburning_เอกสาร.pdf';
+      pdf.save(outputFilename);
+      lastGeneratedPdfDoc = pdf;
+      lastGeneratedRecords = records;
+
+      // แสดงโมดอลผลลัพธ์
+      progressModal.classList.add('hidden');
+      resultPreviewImg.src = firstPageThumb;
+      resultCountTitle.textContent = 'รวมทั้งหมด ' + records.length + ' ใบ';
+
+      // อัปเดต Badge และคำสั่งที่ใช้
+      if (resultAiBadge && resultAiBadgeText) {
+        if (source === 'gemini') {
+          resultAiBadge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-900 border border-orange-200 font-anuphan';
+          resultAiBadgeText.textContent = 'Gemini AI จัดระเบียบตามคำสั่ง';
+        } else {
+          resultAiBadge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 border border-gray-200 font-anuphan';
+          resultAiBadgeText.textContent = 'จัดระเบียบตารางในตัว';
+        }
+      }
+
+      if (resultAppliedPromptText) {
+        if (userPrompt) {
+          resultAppliedPromptText.innerHTML = 'ปฏิบัติตามคำสั่งพิเศษ: <span class="font-bold text-orange-800 bg-orange-50 px-2 py-0.5 rounded border border-orange-200">"' + escapeHtml(userPrompt) + '"</span>';
+        } else {
+          resultAppliedPromptText.textContent = 'เอกสารได้รับการบรรจุลงในไฟล์ PDF รวมเป็นชุดเรียบร้อยแล้ว ดาวน์โหลดได้ทันที';
+        }
+      }
+
+      renderResultDataTable(records);
+      resultModal.classList.remove('hidden');
+      showToast('สร้างไฟล์ PDF สำเร็จ ' + records.length + ' ใบ และเริ่มดาวน์โหลดแล้ว', 'success', 5000);
+    }
+
+    // เรนเดอร์ตารางตรวจสอบข้อมูลที่ AI จัดระเบียบ
+    function renderResultDataTable(records) {
+      if (!records || records.length === 0) {
+        resultDataTable.innerHTML = '<p class="p-3 text-gray-400">ไม่มีข้อมูล</p>';
+        return;
+      }
+
+      let html = '<table class="min-w-full divide-y divide-gray-200">';
+      html += '<thead class="bg-gray-50"><tr>';
+      html += '<th class="px-3 py-2 text-left font-bold text-gray-600">ใบที่</th>';
+      variables.forEach(function (v) {
+        html += '<th class="px-3 py-2 text-left font-bold text-gray-700">' + escapeHtml(v.column || v.text) + '</th>';
+      });
+      html += '</tr></thead><tbody class="divide-y divide-gray-100 bg-white">';
+
+      records.forEach(function (rec, idx) {
+        html += '<tr class="hover:bg-orange-50/50">';
+        html += '<td class="px-3 py-2 font-mono font-bold text-orange-700">' + (idx + 1) + '</td>';
+        variables.forEach(function (v) {
+          const val = rec[String(v.id)] || '-';
+          html += '<td class="px-3 py-2 text-gray-800">' + escapeHtml(val) + '</td>';
+        });
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      resultDataTable.innerHTML = html;
+    }
+
+    // ==========================================
+    // กดปุ่มสร้างเอกสาร (PDF)
+    // ==========================================
+    generatePdfBtn.addEventListener('click', async function () {
+      if (!canvas || variables.length === 0) {
+        showToast('กรุณาเพิ่มตัวแปรข้อความบนเอกสารก่อนสร้าง', 'warning');
+        return;
+      }
+
+      // ตรวจสอบว่ามีข้อมูลตารางหรือยัง หากยังไม่มีให้เปิดหน้าต่างเลือกช่องทาง
+      if (!selectedDataText && !selectedDataFile) {
+        dataPromptModal.classList.remove('hidden');
+        return;
+      }
+
+      startPdfGeneration();
+    });
+
+    async function startPdfGeneration() {
+      // เปิด Progress Modal
+      progressModal.classList.remove('hidden');
+      progressBarFill.style.width = '15%';
+      progressPercentText.textContent = '15%';
+      progressStepText.textContent = 'ขั้นตอน: แยกข้อมูลจากไฟล์';
+      progressStatusText.textContent = 'กำลังอ่านและประมวลผลข้อมูลจากไฟล์...';
+
+      // สกัดข้อความจากไฟล์หากยังไม่มี
+      if (!selectedDataText && selectedDataFile && typeof selectedDataFile.arrayBuffer === 'function') {
+        const parsed = await parseDataFile(selectedDataFile);
+        selectedDataText = parsed.text;
+        if (parsed.columns && parsed.columns.length > 0) detectedColumns = parsed.columns;
+      }
+
+      if (!selectedDataText) {
+        // ใช้ชุดข้อมูลตัวอย่างหากไม่มีข้อมูล
+        selectedDataText = getSampleDataText();
+        detectedColumns = ['ลำดับ', 'ชื่อ-นามสกุล', 'รางวัล', 'สังกัด', 'วันที่มอบ'];
+      }
+
+      progressBarFill.style.width = '35%';
+      progressPercentText.textContent = '35%';
+      progressStepText.textContent = 'ขั้นตอน: Gemini AI จัดระเบียบข้อมูล';
+      progressStatusText.textContent = 'Gemini AI กำลังจัดชุดข้อมูลและจับคู่ตัวแปร...';
+
+      // เรียกให้ Gemini API จัดระเบียบข้อมูลเป็นชุดๆ
+      const organized = await organizeDataWithAI(variables, selectedDataText);
+
+      progressBarFill.style.width = '55%';
+      progressPercentText.textContent = '55%';
+      progressStepText.textContent = 'ขั้นตอน: วาดพื้นหลังและตัวอักษร';
+      progressStatusText.textContent = 'จัดระเบียบข้อมูลสำเร็จ (' + organized.records.length + ' รายการ) กำลังสร้าง PDF...';
+
+      // วาดหน้า PDF และดาวน์โหลด
+      await generatePdfFromRecords(organized.records, organized.source, organized.customPrompt);
+    }
+
+    // Event listeners สำหรับหน้าต่าง Data Prompt Modal
+    closePromptModalBtn.addEventListener('click', function () {
+      dataPromptModal.classList.add('hidden');
+    });
+
+    promptUseSampleBtn.addEventListener('click', function () {
+      dataPromptModal.classList.add('hidden');
+      selectedDataText = getSampleDataText();
+      detectedColumns = ['ลำดับ', 'ชื่อ-นามสกุล', 'รางวัล', 'สังกัด', 'วันที่มอบ'];
+      selectedDataFile = { name: 'ข้อมูลรายชื่อตัวอย่าง (4 คน).csv', size: 1024 };
+      attachedFileTag.classList.remove('hidden');
+      attachedFileText.textContent = 'ไฟล์ข้อมูล: ข้อมูลรายชื่อตัวอย่าง (4 คน)';
+      updateVariableMappingUI();
+      showToast('เลือกใช้ข้อมูลรายชื่อตัวอย่างแล้ว เริ่มการสร้าง PDF', 'info');
+      startPdfGeneration();
+    });
+
+    promptUploadBtn.addEventListener('click', function () {
+      dataPromptModal.classList.add('hidden');
+      dataUpload.click();
+    });
+
+    // Event listeners สำหรับ Result Modal
+    closeResultModalBtn.addEventListener('click', function () {
+      resultModal.classList.add('hidden');
+    });
+
+    backToEditorBtn.addEventListener('click', function () {
+      resultModal.classList.add('hidden');
+    });
+
+    downloadPdfAgainBtn.addEventListener('click', function () {
+      if (lastGeneratedPdfDoc) {
+        lastGeneratedPdfDoc.save('PDFburning_เอกสาร.pdf');
+        showToast('ดาวน์โหลดเอกสารอีกครั้งแล้ว', 'success');
+      }
+    });
+
+    toggleDataPreviewBtn.addEventListener('click', function () {
+      const isHidden = resultDataTableContainer.classList.contains('hidden');
+      if (isHidden) {
+        resultDataTableContainer.classList.remove('hidden');
+        toggleDataText.textContent = 'ซ่อนตารางข้อมูลที่ AI จัดระเบียบ';
+      } else {
+        resultDataTableContainer.classList.add('hidden');
+        toggleDataText.textContent = 'ดูชุดข้อมูลที่ AI จัดระเบียบ';
+      }
+    });
+
+    // ==========================================
+    // จัดการโมดอลเปิดดูไฟล์ข้อมูล (Data File Viewer)
+    // ==========================================
+    function openDataViewerModal() {
+      const fileName = selectedDataFile ? selectedDataFile.name : (selectedDataText ? 'ข้อมูลตัวอย่าง' : null);
+      if (fileName) {
+        dataViewerFilename.textContent = fileName;
+        dataViewerFilename.classList.remove('hidden');
+      } else {
+        dataViewerFilename.textContent = 'ยังไม่มีไฟล์';
+      }
+
+      if (!selectedDataText && parsedDataRows.length === 0) {
+        viewerTableContainer.classList.add('hidden');
+        viewerRawContainer.classList.add('hidden');
+        viewerEmptyContainer.classList.remove('hidden');
+        viewerRowCount.textContent = 'ยังไม่มีข้อมูล';
+        dataViewerSummary.textContent = 'กรุณาอัปโหลดไฟล์ข้อมูลหรือใช้ข้อมูลตัวอย่างเพื่อเปิดดู';
+      } else {
+        viewerEmptyContainer.classList.add('hidden');
+        dataViewerSummary.textContent = 'ตรวจสอบตารางและข้อความที่จะนำไปให้ Gemini AI จัดระเบียบ';
+
+        if (viewerTabTable.classList.contains('bg-orange-500')) {
+          viewerTableContainer.classList.remove('hidden');
+          viewerRawContainer.classList.add('hidden');
+          renderViewerTable(viewerSearchInput ? viewerSearchInput.value : '');
+        } else {
+          viewerTableContainer.classList.add('hidden');
+          viewerRawContainer.classList.remove('hidden');
+          viewerRawText.textContent = selectedDataText || '(ไม่มีข้อความดิบ)';
+        }
+      }
+
+      dataViewerModal.classList.remove('hidden');
+    }
+
+    function renderViewerTable(searchQuery = '') {
+      if (!viewerTable) return;
+      const q = (searchQuery || '').trim().toLowerCase();
+
+      let cols = detectedColumns.slice();
+      if (cols.length === 0 && parsedDataRows.length > 0) {
+        cols = Object.keys(parsedDataRows[0]);
+      }
+
+      if (cols.length === 0 && parsedDataRows.length === 0) {
+        if (selectedDataText) {
+          const lines = selectedDataText.split('\n').filter(Boolean);
+          viewerTable.innerHTML = '<tbody>' + lines.map(function (line, idx) {
+            return '<tr class="hover:bg-orange-50/40"><td class="px-3 py-2 text-gray-400 font-mono text-center w-12 border-b border-gray-100">' + (idx + 1) + '</td><td class="px-3 py-2 text-gray-800 border-b border-gray-100">' + escapeHtml(line) + '</td></tr>';
+          }).join('') + '</tbody>';
+          viewerRowCount.textContent = 'พบ ' + lines.length + ' บรรทัด';
+          return;
+        }
+        viewerTable.innerHTML = '<tbody><tr><td class="text-center py-8 text-gray-400">ไม่มีข้อมูลตาราง</td></tr></tbody>';
+        viewerRowCount.textContent = 'พบ 0 แถว';
+        return;
+      }
+
+      const filteredRows = parsedDataRows.filter(function (row) {
+        if (!q) return true;
+        return Object.values(row).some(function (val) {
+          return String(val).toLowerCase().includes(q);
+        });
+      });
+
+      let html = '<thead class="bg-orange-50/80 sticky top-0 z-10 border-b border-orange-100"><tr>';
+      html += '<th class="px-3.5 py-2.5 text-orange-900 font-bold text-center w-12 border-r border-orange-100">#</th>';
+      cols.forEach(function (c) {
+        html += '<th class="px-3.5 py-2.5 text-left text-orange-950 font-bold border-r border-orange-100 whitespace-nowrap">' + escapeHtml(c) + '</th>';
+      });
+      html += '</tr></thead>';
+
+      html += '<tbody class="divide-y divide-gray-100 bg-white">';
+      if (filteredRows.length === 0) {
+        html += '<tr><td colspan="' + (cols.length + 1) + '" class="text-center py-8 text-gray-400 font-anuphan">ไม่พบข้อมูลที่ตรงกับคำค้นหา "' + escapeHtml(q) + '"</td></tr>';
+      } else {
+        filteredRows.forEach(function (row, idx) {
+          html += '<tr class="hover:bg-amber-50/60 transition">';
+          html += '<td class="px-3.5 py-2 text-center text-gray-400 font-mono bg-gray-50/50 border-r border-gray-100">' + (idx + 1) + '</td>';
+          cols.forEach(function (c) {
+            const val = row[c] != null ? row[c] : '';
+            html += '<td class="px-3.5 py-2 text-gray-800 border-r border-gray-100 whitespace-nowrap">' + escapeHtml(val) + '</td>';
+          });
+          html += '</tr>';
+        });
+      }
+      html += '</tbody>';
+
+      viewerTable.innerHTML = html;
+      viewerRowCount.textContent = 'พบ ' + filteredRows.length + ' แถว' + (q ? ' (กรองจาก ' + parsedDataRows.length + ' แถว)' : '');
+    }
+
+    if (viewDataFileBtn) {
+      viewDataFileBtn.addEventListener('click', openDataViewerModal);
+    }
+    if (uploadViewDataBtn) {
+      uploadViewDataBtn.addEventListener('click', openDataViewerModal);
+    }
+
+    if (closeDataViewerBtn) {
+      closeDataViewerBtn.addEventListener('click', function () {
+        dataViewerModal.classList.add('hidden');
+      });
+    }
+    if (closeDataViewerFooterBtn) {
+      closeDataViewerFooterBtn.addEventListener('click', function () {
+        dataViewerModal.classList.add('hidden');
+      });
+    }
+
+    if (viewerTabTable && viewerTabRaw) {
+      viewerTabTable.addEventListener('click', function () {
+        viewerTabTable.className = 'px-3.5 py-1.5 rounded-lg text-xs font-anuphan font-bold bg-orange-500 text-white shadow-2xs transition flex items-center gap-1.5';
+        viewerTabRaw.className = 'px-3.5 py-1.5 rounded-lg text-xs font-anuphan font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition flex items-center gap-1.5';
+        viewerTableContainer.classList.remove('hidden');
+        viewerRawContainer.classList.add('hidden');
+        renderViewerTable(viewerSearchInput ? viewerSearchInput.value : '');
+      });
+
+      viewerTabRaw.addEventListener('click', function () {
+        viewerTabRaw.className = 'px-3.5 py-1.5 rounded-lg text-xs font-anuphan font-bold bg-orange-500 text-white shadow-2xs transition flex items-center gap-1.5';
+        viewerTabTable.className = 'px-3.5 py-1.5 rounded-lg text-xs font-anuphan font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition flex items-center gap-1.5';
+        viewerTableContainer.classList.add('hidden');
+        viewerRawContainer.classList.remove('hidden');
+        viewerRawText.textContent = selectedDataText || '(ไม่มีข้อความดิบ)';
+      });
+    }
+
+    if (viewerSearchInput) {
+      viewerSearchInput.addEventListener('input', function () {
+        renderViewerTable(this.value);
+      });
+    }
+
+    if (viewerUploadNewBtn) {
+      viewerUploadNewBtn.addEventListener('click', function () {
+        dataUpload.click();
+      });
+    }
+    if (viewerEmptyUploadBtn) {
+      viewerEmptyUploadBtn.addEventListener('click', function () {
+        dataUpload.click();
+      });
+    }
+    if (viewerEmptySampleBtn) {
+      viewerEmptySampleBtn.addEventListener('click', function () {
+        selectedDataText = getSampleDataText();
+        detectedColumns = ['ลำดับ', 'ชื่อ-นามสกุล', 'รางวัล', 'สังกัด', 'วันที่มอบ'];
+        parsedDataRows = getSampleDataRows();
+        selectedDataFile = { name: 'ข้อมูลรายชื่อตัวอย่าง (4 คน).csv', size: 1024 };
+        fileNameText.textContent = selectedDataFile.name;
+        fileSizeText.textContent = '4 รายชื่อ (พร้อมใช้งาน)';
+        filePlaceholder.classList.add('hidden');
+        filePreviewContainer.classList.remove('hidden');
+        fileStatusBadge.classList.remove('hidden');
+        if (attachedFileTag && !stepEditor.classList.contains('hidden')) {
+          attachedFileTag.classList.remove('hidden');
+          attachedFileText.textContent = 'ไฟล์ข้อมูล: ' + selectedDataFile.name;
+        }
+        openDataViewerModal();
+        showToast('โหลดข้อมูลรายชื่อตัวอย่างแล้ว', 'success');
+      });
+    }
+
+    // Event listener สำหรับชิปคำสั่งด่วน AI Prompt
+    aiPromptChips.forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        const textToAdd = this.getAttribute('data-prompt');
+        if (!aiCustomPrompt) return;
+        if (aiCustomPrompt.value.trim() === '') {
+          aiCustomPrompt.value = textToAdd;
+        } else {
+          aiCustomPrompt.value = aiCustomPrompt.value.trim() + '\n' + textToAdd;
+        }
+        aiCustomPrompt.focus();
+      });
     });
   </script>
 

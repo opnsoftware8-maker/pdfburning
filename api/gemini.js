@@ -19,18 +19,40 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'GEMINI_API_KEY not set' });
     }
 
-    //  1.5Flash lite!!!
-    const MODEL = 'gemini-1.5-flash-lite';
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`;
+    // รายการโมเดลที่เสถียรและพร้อมใช้งานตามลำดับความสำคัญ
+    const candidateModels = [
+      req.body?.model,
+      'gemini-3-flash-preview',
+      'gemini-3.5-flash',
+      'gemini-3.8-flash'
+    ].filter(Boolean);
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req.body)
-    });
+    const { model, ...payload } = req.body || {};
 
-    const data = await response.json();
-    res.status(200).json(data);
+    let lastError = null;
+    for (const currentModel of candidateModels) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${apiKey}`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        if (response.ok && data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+          return res.status(200).json(data);
+        } else {
+          lastError = data?.error || { message: `Model ${currentModel} returned status ${response.status}` };
+          console.warn(`Model ${currentModel} failed:`, lastError);
+        }
+      } catch (err) {
+        lastError = { message: err.message };
+        console.warn(`Model ${currentModel} error:`, err);
+      }
+    }
+
+    return res.status(502).json({ error: lastError || 'All models failed to respond' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
